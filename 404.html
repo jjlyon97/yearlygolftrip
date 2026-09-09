@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lost ball — The Annual Golf Trip</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="assets/css/style.css?v=9">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>⛳</text></svg>">
+</head>
+<body>
+<header id="site-header"></header>
+
+<main>
+  <section style="padding:clamp(3.5rem,9vw,6.5rem) 0">
+    <div class="wrap narrow center">
+      <p class="eyebrow">Error 404</p>
+      <h1 style="max-width:none">Lost ball</h1>
+      <p class="lede" style="margin:0 auto 2rem">
+        That page is not on this property. Take a drop, no penalty — here is the way back.
+      </p>
+      <div class="hero-actions" style="justify-content:center">
+        <a class="btn btn-primary" href="index.html">Back to the home page</a>
+        <a class="btn btn-ghost" href="destinations.html">Browse destinations</a>
+      </div>
+
+      <div style="margin-top:3.5rem;text-align:left">
+        <p class="eyebrow center">Or start here</p>
+        <div class="grid grid-3" id="lost-suggestions"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer id="site-footer"></footer>
+
+<script src="assets/js/data.js?v=9"></script>
+<script src="assets/js/app.js?v=9"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const top3 = [...DESTINATIONS].sort((a, b) => b.editorScore - a.editorScore).slice(0, 3);
+  $('#lost-suggestions').innerHTML = top3.map(d => destinationCard(d)).join('');
+});
+</script>
+</body>
+</html>

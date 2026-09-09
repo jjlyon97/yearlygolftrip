@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Top Rated Golf Destinations — The Annual Golf Trip</title>
+<meta name="description" content="The golf travel leaderboard — destinations ranked by community rating, including the ones you have rated yourself.">
+<link rel="stylesheet" href="assets/css/style.css?v=9">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>⛳</text></svg>">
+</head>
+<body>
+<header id="site-header"></header>
+
+<main>
+  <section style="padding-bottom:1.5rem">
+    <div class="wrap">
+      <p class="eyebrow">The leaderboard</p>
+      <h1 style="max-width:16ch">Top rated destinations</h1>
+      <p class="lede">Ranked by community score. Anything you rate is blended straight in — rate a few and watch the table move.</p>
+    </div>
+  </section>
+
+  <section style="padding-top:0">
+    <div class="wrap">
+      <!-- podium -->
+      <div class="grid grid-3" id="podium" style="margin-bottom:2.5rem"></div>
+
+      <div class="section-head">
+        <div><h2 style="font-size:1.6rem;margin:0">Full rankings</h2></div>
+        <div class="chip-row">
+          <button class="chip active" data-rank="community">By community score</button>
+          <button class="chip" data-rank="editor">By editor score</button>
+          <button class="chip" data-rank="value">By value</button>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th style="width:56px">#</th><th>Destination</th><th>Region</th>
+                <th>Season</th><th>Cost</th><th>Score</th><th>Your rating</th></tr>
+          </thead>
+          <tbody id="rank-body"></tbody>
+        </table>
+      </div>
+
+      <!-- your ratings -->
+      <div style="margin-top:3rem">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Your reviews</p>
+            <h2 style="font-size:1.6rem;margin:0">What you have rated</h2>
+          </div>
+          <button class="btn btn-ghost btn-sm" id="clear-all">Clear all my ratings</button>
+        </div>
+        <div id="my-ratings"></div>
+      </div>
+
+      <p class="small muted" style="margin-top:2.5rem;max-width:70ch">
+        Community scores shown here are sample seed data used to give the leaderboard a starting
+        shape — they are not aggregated from real travellers. Your own ratings are stored in this
+        browser's local storage and are not sent anywhere.
+      </p>
+    </div>
+  </section>
+</main>
+
+<footer id="site-footer"></footer>
+
+<script src="assets/js/data.js?v=9"></script>
+<script src="assets/js/app.js?v=9"></script>
+<script>
+let rankMode = 'community';
+
+function valueScore(d){
+  // rating per dollar-tier — rewards quality at a lower price band
+  return Ratings.score(d).value / d.priceTier;
+}
+
+function ranked(){
+  const rows = DESTINATIONS.map(d => ({ d, s:Ratings.score(d) }));
+  const sorters = {
+    community: (a, b) => b.s.value - a.s.value || b.d.editorScore - a.d.editorScore,
+    editor:    (a, b) => b.d.editorScore - a.d.editorScore,
+    value:     (a, b) => valueScore(b.d) - valueScore(a.d)
+  };
+  return rows.sort(sorters[rankMode]);
+}
+
+function render(){
+  const rows = ranked();
+
+  // podium — top three
+  $('#podium').innerHTML = rows.slice(0, 3).map((r, i) =>
+    destinationCard(r.d, i + 1)).join('');
+
+  // table
+  $('#rank-body').innerHTML = rows.map((r, i) => `
+    <tr>
+      <td><span class="rank">${i + 1}</span></td>
+      <td><b><a href="destinations.html#${r.d.id}" style="text-decoration:none">${esc(r.d.name)}</a></b>
+          <div class="small muted">${r.d.courses.length} courses</div></td>
+      <td class="small">${esc(r.d.region)}</td>
+      <td class="small">${esc(r.d.season)}</td>
+      <td>${PRICE_LABEL[r.d.priceTier]}</td>
+      <td>${starsHTML(r.s.value)} <b>${r.s.value.toFixed(1)}</b>
+          <div class="small muted">${r.s.votes} ratings</div></td>
+      <td>${r.s.mine
+            ? `<b>${r.s.mine.stars}/5</b>`
+            : `<a class="small" href="destinations.html#${r.d.id}">Rate it</a>`}</td>
+    </tr>`).join('');
+
+  // your reviews
+  const mine = DESTINATIONS
+    .map(d => ({ d, r:Ratings.get(d.id) }))
+    .filter(x => x.r)
+    .sort((a, b) => b.r.ts - a.r.ts);
+
+  $('#my-ratings').innerHTML = mine.length ? mine.map(x => `
+    <div class="panel panel-tight" style="margin-bottom:.9rem">
+      <div style="display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;align-items:baseline">
+        <h3 style="margin:0"><a href="destinations.html#${x.d.id}" style="text-decoration:none">${esc(x.d.name)}</a></h3>
+        <span>${starsHTML(x.r.stars)} <b>${x.r.stars}/5</b></span>
+      </div>
+      ${x.r.review ? `<p class="small" style="margin:.6rem 0 0">${esc(x.r.review)}</p>` : ''}
+      <p class="small muted" style="margin:.5rem 0 0">Rated ${new Date(x.r.ts).toLocaleDateString()}</p>
+    </div>`).join('') : `
+    <div class="empty-state">
+      <h3>No ratings yet</h3>
+      <p>Rate a destination and it will show up here — and shift the table above.</p>
+      <a class="btn btn-primary btn-sm" href="destinations.html">Browse destinations</a>
+    </div>`;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  $$('.chip[data-rank]').forEach(chip => {
+    chip.addEventListener('click', () => {
+      $$('.chip[data-rank]').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      rankMode = chip.dataset.rank;
+      render();
+    });
+  });
+
+  $('#clear-all').addEventListener('click', () => {
+    if(!Ratings.count()){ toast('You have no ratings to clear'); return; }
+    if(confirm('Remove every rating you have saved in this browser?')){
+      localStorage.removeItem('annualgolftrip.ratings.v1');
+      toast('All ratings cleared');
+      render();
+    }
+  });
+
+  render();
+});
+</script>
+</body>
+</html>

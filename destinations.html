@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Golf Travel Destinations — The Annual Golf Trip</title>
+<meta name="description" content="Twenty of the best US golf travel destinations, with courses, seasons, airports, access rules and direct links for tee times. Filter by month, region and budget.">
+<link rel="stylesheet" href="assets/css/style.css?v=9">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>⛳</text></svg>">
+</head>
+<body>
+<header id="site-header"></header>
+
+<main>
+  <section style="padding-bottom:1.5rem">
+    <div class="wrap">
+      <p class="eyebrow">Where to go</p>
+      <h1 style="max-width:18ch">Best golf travel destinations</h1>
+      <p class="lede">Twenty US golf areas worth building a trip around. Every entry lists the courses worth playing, the months worth going, the airport you actually fly into, and a direct link to each course for live tee times.</p>
+    </div>
+  </section>
+
+  <section style="padding-top:0">
+    <div class="wrap">
+      <!-- filters -->
+      <div class="filters">
+        <div class="field">
+          <label for="f-search">Search</label>
+          <input type="search" id="f-search" placeholder="Course, region, country…">
+        </div>
+        <div class="field">
+          <label for="f-region">Region</label>
+          <select id="f-region"></select>
+        </div>
+        <div class="field">
+          <label for="f-month">Travelling in</label>
+          <select id="f-month"></select>
+        </div>
+        <div class="field">
+          <label for="f-price">Budget</label>
+          <select id="f-price">
+            <option value="">Any</option>
+            <option value="1">$ Budget</option>
+            <option value="2">$$ Moderate</option>
+            <option value="3">$$$ Premium</option>
+            <option value="4">$$$$ Splurge</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="f-sort">Sort by</label>
+          <select id="f-sort">
+            <option value="editor">Editor score</option>
+            <option value="rated">Community rating</option>
+            <option value="price">Price, low to high</option>
+            <option value="courses">Most courses</option>
+            <option value="travel">Easiest to reach</option>
+            <option value="name">Name</option>
+          </select>
+        </div>
+        <button class="btn btn-ghost btn-sm" id="f-reset">Reset</button>
+      </div>
+
+      <div class="chip-row" id="style-chips" style="margin-bottom:1.4rem"></div>
+
+      <p class="small muted" id="result-count" style="margin-bottom:1.2rem"></p>
+
+      <!-- detail drawer -->
+      <div id="detail" hidden style="margin-bottom:2.4rem;scroll-margin-top:84px"></div>
+
+      <!-- grid -->
+      <div class="grid grid-3" id="dest-grid"></div>
+
+      <p class="small muted" style="margin-top:2.5rem;max-width:70ch">
+        Cost is shown as a tier ($ – $$$$) rather than a dollar figure, because green fees and room
+        rates change constantly — use the course links for live pricing and tee times. Community scores
+        are sample seed data, not real reviews; ratings you leave are stored in this browser only.
+      </p>
+    </div>
+  </section>
+</main>
+
+<footer id="site-footer"></footer>
+
+<script src="assets/js/data.js?v=9"></script>
+<script src="assets/js/app.js?v=9"></script>
+<script src="assets/js/destinations.js?v=9"></script>
+</body>
+</html>

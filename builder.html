@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Build Your Golf Trip — The Annual Golf Trip</title>
+<meta name="description" content="Build a golf trip itinerary day by day — courses, tee times and lodging bundled with a running per-person cost — then share it with your group as a single link.">
+<link rel="stylesheet" href="assets/css/style.css?v=9">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>⛳</text></svg>">
+</head>
+<body>
+<header id="site-header"></header>
+
+<main>
+  <section style="padding-bottom:1.6rem">
+    <div class="wrap">
+      <p class="eyebrow">Itinerary builder</p>
+      <h1 style="max-width:16ch">Build your trip</h1>
+      <p class="lede">Add a day, pick a course and a tee time, attach the lodging. Each course links straight to its own site for live tee times, and everything saves in this browser automatically.</p>
+    </div>
+  </section>
+
+  <section style="padding-top:0">
+    <div class="wrap">
+      <div class="builder-layout">
+        <!-- ---------- left: the trip ---------- -->
+        <div>
+          <div class="panel" style="margin-bottom:1.5rem">
+            <div class="field-row">
+              <div class="field" style="flex:2">
+                <label for="f-title">Trip name</label>
+                <input id="f-title" placeholder="e.g. Dave's 40th — Bandon" maxlength="120">
+              </div>
+              <div class="field">
+                <label for="f-travelers">Players</label>
+                <input id="f-travelers" type="number" min="1" max="64" value="4">
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field" style="flex:2">
+                <label for="f-dest">Destination</label>
+                <select id="f-dest"></select>
+              </div>
+              <div class="field">
+                <label for="f-start">Start date</label>
+                <input id="f-start" type="date">
+              </div>
+            </div>
+            <div class="notice" id="dest-note" hidden style="margin-top:.4rem"></div>
+          </div>
+
+          <div id="days"></div>
+
+          <button class="btn btn-ghost no-print" id="add-day" style="width:100%">+ Add another day</button>
+
+          <div id="share-out" hidden class="panel no-print" style="margin-top:1.5rem">
+            <h3 style="margin-bottom:.3em">Share this itinerary</h3>
+            <p class="small muted">The whole trip is packed into this link — anyone who opens it sees your plan and can edit their own copy. Nothing is uploaded.</p>
+            <div style="display:flex;gap:.5rem;margin-top:.8rem">
+              <input id="share-url" readonly style="font-family:var(--mono);font-size:.8rem">
+              <button class="btn btn-primary btn-sm" id="copy-url">Copy</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ---------- right: summary ---------- -->
+        <aside>
+          <div class="panel summary-card" id="summary"></div>
+          <p class="small muted no-print" style="margin-top:1rem">
+            Saved automatically in this browser. Clearing site data will erase it — copy the share
+            link if you want a permanent backup.
+          </p>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <datalist id="dl-courses"></datalist>
+  <datalist id="dl-lodging"></datalist>
+  <div id="print-view" style="display:none"></div>
+</main>
+
+<footer id="site-footer"></footer>
+
+<script src="assets/js/data.js?v=9"></script>
+<script src="assets/js/app.js?v=9"></script>
+<script src="assets/js/builder.js?v=9"></script>
+<style>
+@media print{
+  main > section, .builder-layout > div:first-child, aside { display:none !important; }
+  #print-view{ display:block !important; font-family:Georgia,serif; padding:20px }
+  #print-view hr{ border:none;border-top:1px solid #ccc;margin:14px 0 }
+}
+</style>
+</body>
+</html>

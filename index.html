@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Annual Golf Trip — Golf Trip Planning Hub</title>
+<meta name="description" content="Plan a US golf trip end to end: answer five questions to find the right destination, browse the twenty best golf areas in America, and build a shareable day-by-day itinerary.">
+<link rel="stylesheet" href="assets/css/style.css?v=9">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>⛳</text></svg>">
+</head>
+<body>
+<header id="site-header"></header>
+
+<main>
+  <!-- ---------------- hero ---------------- -->
+  <div class="hero">
+    <div class="wrap hero-inner">
+      <p class="eyebrow">Golf trip planning hub</p>
+      <h1>Plan the round first. <em>Book the trip around it.</em></h1>
+      <p class="lede">Most travel sites treat golf as an add-on. This one starts with the tee sheet — courses, lodging and tee times bundled into one itinerary you can send to your group.</p>
+      <div class="hero-actions">
+        <a class="btn btn-sand" href="#matcher-section">Where should you go? →</a>
+        <a class="btn btn-ghost" href="builder.html">Build your itinerary</a>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat"><b id="stat-dest">20</b><span>US destinations</span></div>
+        <div class="hero-stat"><b id="stat-courses">106</b><span>Courses on file</span></div>
+        <div class="hero-stat"><b id="stat-trips">20</b><span>Ready-made trips</span></div>
+        <div class="hero-stat"><b>Free</b><span>No account needed</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ---------------- trip matcher ---------------- -->
+  <section id="matcher-section" style="padding-top:clamp(2.5rem,5vw,3.8rem);scroll-margin-top:80px">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Trip matcher</p>
+          <h2>Where should you go?</h2>
+        </div>
+        <p>Five questions, about thirty seconds. We score all twenty destinations on when you can travel, who is coming and what you want to play.</p>
+      </div>
+      <div class="matcher" id="matcher"></div>
+    </div>
+  </section>
+
+  <!-- ---------------- destinations ---------------- -->
+  <section style="background:var(--paper);border-block:1px solid var(--line)">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Where to go</p>
+          <h2>Best US golf destinations</h2>
+          <p style="margin-top:.5rem">Every one has a ready-made itinerary attached — open it, or start a blank plan of your own.</p>
+        </div>
+        <a class="btn btn-ghost btn-sm" href="destinations.html">See all 20 →</a>
+      </div>
+      <div class="grid grid-3" id="featured-destinations"></div>
+    </div>
+  </section>
+
+  <!-- ---------------- how it works ---------------- -->
+  <section id="how">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">How it works</p>
+          <h2>Three steps, one shareable link</h2>
+        </div>
+        <p>Everything is stored in your browser and packed into the URL when you share, so there is nothing to sign up for.</p>
+      </div>
+      <div class="grid grid-3">
+        <div class="panel">
+          <div class="day-num" style="margin-bottom:1rem">1</div>
+          <h3>Pick where</h3>
+          <p class="small muted" style="margin:0">Twenty US golf areas with the courses worth playing, the best months, how hard each one is to reach and which airport you actually fly into.</p>
+        </div>
+        <div class="panel">
+          <div class="day-num" style="margin-bottom:1rem">2</div>
+          <h3>Build the days</h3>
+          <p class="small muted" style="margin:0">Start from a ready-made itinerary or a blank slate. Add a day, choose a course and a tee time, attach lodging — every course links out for live tee times.</p>
+        </div>
+        <div class="panel">
+          <div class="day-num" style="margin-bottom:1rem">3</div>
+          <h3>Send it to the group</h3>
+          <p class="small muted" style="margin:0">Copy one link. The whole itinerary travels inside it — no logins, no app, nothing for your mates to install before they can look at it.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------------- top ten ---------------- -->
+  <section style="background:var(--paper);border-block:1px solid var(--line)">
+    <div class="wrap">
+      <div class="grid grid-2" style="align-items:start;gap:2.5rem">
+        <div>
+          <p class="eyebrow">The leaderboard</p>
+          <h2>The top ten</h2>
+          <p class="lede">Ranked by community score. Rate the places you have played and the table moves — your ratings are blended straight into it.</p>
+          <div class="hero-actions" style="margin-top:1.4rem">
+            <a class="btn btn-primary" href="top-rated.html">Full rankings →</a>
+            <a class="btn btn-ghost" href="destinations.html">Rate a destination</a>
+          </div>
+          <p class="small muted" style="margin-top:1.6rem;max-width:44ch">
+            Community scores are sample seed data, not real reviews. Anything you rate is stored in this browser only.
+          </p>
+        </div>
+        <div class="panel">
+          <div id="top-ten"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer id="site-footer"></footer>
+
+<script src="assets/js/data.js?v=9"></script>
+<script src="assets/js/app.js?v=9"></script>
+<script src="assets/js/matcher.js?v=9"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  $('#stat-dest').textContent    = DESTINATIONS.length;
+  $('#stat-courses').textContent = DESTINATIONS.reduce((n, d) => n + d.courses.length, 0);
+  $('#stat-trips').textContent   = EXAMPLE_TRIPS.length;
+
+  // six highest editor scores
+  const featured = [...DESTINATIONS].sort((a, b) => b.editorScore - a.editorScore).slice(0, 6);
+  $('#featured-destinations').innerHTML = featured.map(d => destinationCard(d)).join('');
+
+  // top ten by community score
+  const ranked = [...DESTINATIONS]
+    .map(d => ({ d, s:Ratings.score(d) }))
+    .sort((a, b) => b.s.value - a.s.value || b.d.editorScore - a.d.editorScore)
+    .slice(0, 10);
+
+  $('#top-ten').innerHTML = ranked.map((r, i) => `
+    <div class="lb-row">
+      <span class="lb-rank">${i + 1}</span>
+      <a class="lb-name" href="destinations.html#${r.d.id}">${esc(r.d.name)}
+        <span>${esc(r.d.region)} · ${PRICE_LABEL[r.d.priceTier]} · ✈ ${TRAVEL_SHORT[r.d.travelEase]}</span></a>
+      <span class="lb-score">${starsHTML(r.s.value)} <b>${r.s.value.toFixed(1)}</b></span>
+    </div>`).join('');
+});
+</script>
+</body>
+</html>
