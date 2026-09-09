@@ -98,11 +98,12 @@ fully editable by whoever opens it — they get their own copy. All decoded valu
 are escaped before rendering, so a hostile link renders as text.
 
 ### Cache busting
-Asset links carry a `?v=N` query string. **Bump it in all five HTML files when
-you change a JS or CSS file**, otherwise browsers serve the old one:
+Asset links carry a `?v=N` query string. It must be bumped whenever a JS or CSS
+file changes, or browsers keep serving the old one. **`deploy.sh` does this for
+you** — see below. To do it by hand:
 
 ```bash
-for f in *.html; do sed -i '' 's/?v=9"/?v=10"/g' "$f"; done
+for f in *.html; do sed -i '' 's/?v=10"/?v=11"/g' "$f"; done
 ```
 
 ## ⚠️ About the numbers
@@ -161,8 +162,29 @@ add an "International" option to the region filter, then move it into
 
 ## Deploying
 
-It is a folder of static files: Netlify (drag and drop), GitHub Pages,
-Cloudflare Pages, S3. No build command, no environment variables.
+Live at **https://yearlygolftrip.netlify.app**, deployed from the `main` branch
+of **https://github.com/jjlyon97/yearlygolftrip**. Netlify watches the repo and
+republishes on every push — no build command, no environment variables,
+publish directory is the repo root.
+
+### The one command
+
+```bash
+./deploy.sh "what changed"
+```
+
+That script is the whole deploy process:
+
+1. Reads the current `?v=N` from the pages and checks they all agree
+2. Pre-flight: every local file the pages reference must actually exist
+3. Bumps the version to `N+1` across all pages
+4. `git add -A`, commits with your message, pushes
+5. Netlify republishes about 30 seconds later
+
+It refuses to run if the pages disagree on a version or if a page points at a
+missing file — both of which are silent breakage if they reach production.
+
+Doing it by hand still works; the script just removes the step everyone forgets.
 
 ## Where a backend would be needed
 
