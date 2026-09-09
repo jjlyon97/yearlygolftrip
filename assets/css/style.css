@@ -448,3 +448,41 @@ td .rank{font-family:var(--display);font-size:1.25rem;font-weight:700;color:var(
 .gt-meter{display:flex;gap:3px;align-items:center}
 .gt-meter i{width:7px;height:16px;border-radius:2px;background:var(--line-strong);display:block}
 .gt-meter i.on{background:var(--sand)}
+
+/* ---------- multi-category rating ---------- */
+.rate-grid{display:grid;gap:.55rem}
+.rate-cat{
+  display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;
+  padding:.6rem .8rem;border:1px solid var(--line);border-radius:var(--radius-sm);
+  background:var(--card);
+}
+.rate-cat-label{min-width:190px;flex:1}
+.rate-cat-label b{display:block;font-size:.92rem}
+.rate-cat-label span{display:block;line-height:1.35;margin-top:.1em}
+.rate-cat-stars{display:flex;align-items:center;gap:.7rem}
+.rate-cat .rate-star{font-size:1.35rem}
+.rate-community{
+  min-width:2.1em;text-align:right;font-variant-numeric:tabular-nums;
+  padding-left:.5rem;border-left:1px solid var(--line);
+}
+
+/* ---------- score breakdown bars ---------- */
+.score-bars{display:grid;gap:.5rem}
+.score-bar{display:grid;grid-template-columns:150px 1fr 34px;gap:.8rem;align-items:center}
+.sb-label{font-size:.86rem;color:var(--ink-soft);font-weight:600}
+.sb-track{height:8px;border-radius:100px;background:rgba(26,86,65,.1);overflow:hidden}
+.sb-fill{display:block;height:100%;border-radius:100px;background:linear-gradient(90deg,var(--green-600),var(--sand))}
+.sb-val{font-size:.85rem;font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
+@media (max-width:520px){
+  .score-bar{grid-template-columns:110px 1fr 32px;gap:.5rem}
+  .sb-label{font-size:.78rem}
+}
+
+/* ---------- inline category bars in the leaderboard ---------- */
+.mini-bars{display:inline-flex;align-items:flex-end;gap:3px;height:26px}
+.mb{
+  width:7px;height:100%;border-radius:2px;
+  background:rgba(26,86,65,.1);display:flex;align-items:flex-end;overflow:hidden;
+}
+.mb-fill{width:100%;background:var(--green-600);border-radius:2px;opacity:.55}
+.mb-fill.on{background:var(--sand);opacity:1}

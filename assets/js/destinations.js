@@ -5,7 +5,7 @@
 const MONTHS = ['January','February','March','April','May','June',
                 'July','August','September','October','November','December'];
 
-const state = { q:'', usRegion:'', month:'', price:'', style:'', sort:'editor' };
+const state = { q:'', usRegion:'', month:'', price:'', style:'', sort:'editor', category:'overall', minScore:0 };
 
 /* ---------- filter + sort ---------- */
 function applyFilters(){
@@ -14,6 +14,7 @@ function applyFilters(){
     if(state.price && String(d.priceTier) !== state.price) return false;
     if(state.style && d.style !== state.style) return false;
     if(state.month && !d.seasonMonths.includes(Number(state.month))) return false;
+    if(state.minScore && Ratings.by(d, state.category) < state.minScore) return false;
     if(state.q){
       const hay = [d.name, d.region, d.country, d.tagline, d.blurb,
                    ...d.courses.map(c => c.name)].join(' ').toLowerCase();
@@ -24,7 +25,7 @@ function applyFilters(){
 
   const sorters = {
     editor:  (a, b) => b.editorScore - a.editorScore,
-    rated:   (a, b) => Ratings.score(b).value - Ratings.score(a).value,
+    rated:   (a, b) => Ratings.by(b, state.category) - Ratings.by(a, state.category),
     price:   (a, b) => a.priceTier - b.priceTier,
     name:    (a, b) => a.name.localeCompare(b.name),
     courses: (a, b) => b.courses.length - a.courses.length,
@@ -43,6 +44,8 @@ function applyFilters(){
          <p>Try widening the month or price range.</p>
        </div>`;
 }
+
+const dest_votes = d => d.seedVotes.toLocaleString('en-US');
 
 /* ---------- detail view ---------- */
 function renderDetail(id){
@@ -135,6 +138,24 @@ function renderDetail(id){
           </div>
         </div>
 
+        <h3>How travellers rate it</h3>
+        <p class="small muted" style="margin:-.4em 0 .9rem">
+          ${s.blended
+            ? `Blended — community ${100 - Math.round(MY_WEIGHT * 100)}%, your rating ${Math.round(MY_WEIGHT * 100)}%.`
+            : 'Community scores. Rate it below and these become your blended view.'}
+        </p>
+        <div class="score-bars" style="margin-bottom:1.8rem">
+          ${RATING_CATEGORIES.map(c => {
+            const v = s.categories[c.key];
+            return `
+            <div class="score-bar">
+              <span class="sb-label">${esc(c.label)}</span>
+              <span class="sb-track"><span class="sb-fill" style="width:${(v / 5 * 100).toFixed(1)}%"></span></span>
+              <span class="sb-val">${v.toFixed(1)}</span>
+            </div>`;
+          }).join('')}
+        </div>
+
         <h3>Courses</h3>
         <div class="table-wrap" style="margin-bottom:1.8rem">
           <table>
@@ -148,16 +169,35 @@ function renderDetail(id){
 
         <!-- rating -->
         <div class="panel panel-tight" style="background:var(--cream)">
-          <h3 style="margin-bottom:.3em">Rate ${esc(d.name)}</h3>
-          <p class="small muted">Community score <b>${s.value.toFixed(1)}</b> from ${s.votes} ratings.
-            ${mine ? `You rated this ${mine.stars}/5.` : 'You have not rated this yet.'}</p>
-          <div class="rate-widget" id="rate-widget" role="radiogroup" aria-label="Your rating">
-            ${[1,2,3,4,5].map(n => `
-              <button class="rate-star${mine && mine.stars >= n ? ' on' : ''}"
-                      data-n="${n}" role="radio" aria-checked="${mine && mine.stars === n}"
-                      aria-label="${n} star${n > 1 ? 's' : ''}">★</button>`).join('')}
+          <h3 style="margin-bottom:.2em">Rate ${esc(d.name)}</h3>
+          <p class="small muted" style="margin-bottom:1.1rem">
+            Community score <b>${s.community.toFixed(1)}</b> from ${dest_votes(d)} ratings.
+            ${mine
+              ? `You have rated this, so the scores shown are blended — yours counts for ${Math.round(MY_WEIGHT * 100)}%.`
+              : 'Rate the categories you have an opinion on; skip the rest.'}
+          </p>
+
+          <div class="rate-grid">
+            ${RATING_CATEGORIES.map(c => `
+              <div class="rate-cat" data-cat="${c.key}">
+                <div class="rate-cat-label">
+                  <b>${esc(c.label)}</b>
+                  <span class="small muted">${esc(c.hint)}</span>
+                </div>
+                <div class="rate-cat-stars">
+                  <div class="rate-widget" role="radiogroup" aria-label="${esc(c.label)}">
+                    ${[1,2,3,4,5].map(n => `
+                      <button class="rate-star${mine && mine.scores[c.key] >= n ? ' on' : ''}"
+                              data-cat="${c.key}" data-n="${n}"
+                              aria-label="${esc(c.label)}: ${n} of 5">★</button>`).join('')}
+                  </div>
+                  <span class="rate-community small muted"
+                        title="Community average">${s.categories[c.key].toFixed(1)}</span>
+                </div>
+              </div>`).join('')}
           </div>
-          <div class="field" style="margin:.9rem 0">
+
+          <div class="field" style="margin:1.1rem 0">
             <label for="rate-note">Tip for the next group (optional)</label>
             <textarea id="rate-note" maxlength="400"
               placeholder="Best time to tee off, where to eat, what you'd skip…">${esc(mine ? mine.review : '')}</textarea>
@@ -169,25 +209,26 @@ function renderDetail(id){
           </div>
         </div>
       </div>
-    </div>`;
+    </article>`;
 
   /* rating interactions */
-  let picked = mine ? mine.stars : 0;
-  const widget = $('#rate-widget');
-  $$('.rate-star', widget).forEach(btn => {
+  const picked = {};
+  if(mine) Object.assign(picked, mine.scores);
+
+  $$('#detail .rate-star').forEach(btn => {
     btn.addEventListener('click', () => {
-      picked = Number(btn.dataset.n);
-      $$('.rate-star', widget).forEach(b => {
-        b.classList.toggle('on', Number(b.dataset.n) <= picked);
-        b.setAttribute('aria-checked', String(Number(b.dataset.n) === picked));
-      });
+      const cat = btn.dataset.cat;
+      picked[cat] = Number(btn.dataset.n);
+      $$(`#detail .rate-star[data-cat="${cat}"]`).forEach(b =>
+        b.classList.toggle('on', Number(b.dataset.n) <= picked[cat]));
     });
   });
 
   $('#save-rating').addEventListener('click', () => {
-    if(!picked){ toast('Pick a star rating first'); return; }
+    if(!Object.keys(picked).length){ toast('Rate at least one category first'); return; }
     Ratings.set(d.id, picked, $('#rate-note').value);
-    toast(`Saved — ${d.name} rated ${picked}/5`);
+    const n = Object.keys(picked).length;
+    toast(`Saved — ${n} categor${n === 1 ? 'y' : 'ies'} rated`);
     applyFilters();
     renderDetail(d.id);
   });
@@ -240,10 +281,21 @@ document.addEventListener('DOMContentLoaded', () => {
   $('#f-price').addEventListener('change', e => { state.price = e.target.value; applyFilters(); });
   $('#f-sort').addEventListener('change', e => { state.sort = e.target.value; applyFilters(); });
 
+  $('#f-category').innerHTML =
+    '<option value="overall">Overall rating</option>' +
+    RATING_CATEGORIES.map(c => `<option value="${c.key}">${c.label}</option>`).join('');
+
+  $('#f-category').addEventListener('change', e => {
+    state.category = e.target.value;
+    if(state.minScore || state.sort === 'rated') applyFilters(); else { state.sort = 'rated'; $('#f-sort').value = 'rated'; applyFilters(); }
+  });
+  $('#f-min').addEventListener('change', e => { state.minScore = Number(e.target.value); applyFilters(); });
+
   $('#f-reset').addEventListener('click', () => {
-    Object.assign(state, { q:'', usRegion:'', month:'', price:'', style:'', sort:'editor' });
+    Object.assign(state, { q:'', usRegion:'', month:'', price:'', style:'', sort:'editor', category:'overall', minScore:0 });
     $('#f-search').value = ''; $('#f-region').value = ''; $('#f-month').value = '';
     $('#f-price').value = ''; $('#f-sort').value = 'editor';
+    $('#f-category').value = 'overall'; $('#f-min').value = '0';
     $$('#style-chips .chip').forEach((c, i) => c.classList.toggle('active', i === 0));
     applyFilters();
   });

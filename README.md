@@ -85,13 +85,58 @@ It surfaces as a pill on every destination card, a meter and panel in the
 destination detail, a row in each trip's sidebar, an "Easiest to reach" sort
 option, and question five of the matcher.
 
-### Ratings
-There is no backend, so ratings are stored in `localStorage` under
-`annualgolftrip.ratings.v1` and are visible only in that browser. The
-`seedScore` and `seedVotes` values in `data.js` are **sample data** used to give
-the leaderboard a starting shape — they are not real reviews.
+### Ratings — six categories
 
-### Sharing
+People rate a destination across six axes rather than giving one blunt star
+score, because "is it good?" has different answers depending on what you want:
+
+| Key | Label | What it means |
+|---|---|---|
+| `quality` | Course quality | The design — the holes you actually remember |
+| `depth` | Course depth | Enough good golf for a whole trip, or one course and filler |
+| `condition` | Conditioning | Turf, greens, presentation |
+| `lodging` | Lodging & amenities | Rooms, food, clubhouse, practice, caddies |
+| `value` | Value | Worth the money, whatever the price bracket |
+| `offcourse` | Off-course | The town, the food, whether non-golfers enjoyed it |
+
+Categories are defined once in `RATING_CATEGORIES` (`data.js`) and everything
+else — the rating widget, the filters, the leaderboard columns, the breakdown
+bars — is generated from that array. Add a seventh category there and it
+appears everywhere; you only have to add the matching `seedScores` key to each
+destination.
+
+Rating is **partial by design**: score only the categories you have an opinion
+on. Overall is the mean of whatever has a value.
+
+**Why filtering by category matters:** the rankings genuinely diverge. Value is
+led by the RTJ Trail and Long Island; Course quality by Bandon and the Nebraska
+Sandhills; Lodging by Sea Island; Off-course by Maui and Las Vegas. A single
+combined score would hide all of that.
+
+### The 25% weighting
+
+Ratings live in `localStorage` under `annualgolftrip.ratings.v2` and never
+leave the browser. `seedScores` and `seedVotes` in `data.js` are **sample
+data**, not real reviews.
+
+Those seed vote counts run into the hundreds, so blending a real rating in as
+one extra vote moved a score by about 0.004 — invisible, which made the promise
+that your rating shifts the table effectively false. Your rating is therefore
+given a fixed share instead:
+
+```js
+const MY_WEIGHT = 0.25;   // app.js
+blended = community * 0.75 + yours * 0.25
+```
+
+Every place a blended number appears says so. Categories you have not rated
+show the community number untouched. If real ratings ever arrive from a
+backend, delete `MY_WEIGHT` and go back to honest vote-count averaging.
+
+A one-time migration reads the old single-score `…ratings.v1` format and copies
+that value into all six categories.
+
+### Sharing### Sharing
 The builder packs the entire itinerary into the URL hash as base64url JSON
 (`builder.html#t=…`). No account, no server, nothing uploaded. A shared link is
 fully editable by whoever opens it — they get their own copy. All decoded values

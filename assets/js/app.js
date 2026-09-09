@@ -132,17 +132,53 @@ function renderChrome(){
    Seed scores in data.js are sample content used to give the
    leaderboard a starting shape — they are not real reviews.
    ============================================================ */
-const RATINGS_KEY = 'annualgolftrip.ratings.v1';
+/* How much your own rating counts toward the score you see.
+   The community numbers here are seeded sample data with vote counts in the
+   hundreds, so a single extra vote would move a score by ~0.004 — invisible,
+   and it would make "rate a few and watch the table move" a lie. Your rating
+   is therefore given a fixed share instead, and the UI says so wherever a
+   blended number is shown. Nobody else sees your ratings; they never leave
+   this browser. */
+const MY_WEIGHT = 0.25;
+
+const RATINGS_KEY     = 'annualgolftrip.ratings.v2';
+const RATINGS_KEY_OLD = 'annualgolftrip.ratings.v1';
+
+/** Mean of whatever category scores are present, or null. */
+function meanScore(scores){
+  const vals = CATEGORY_KEYS.map(k => Number(scores?.[k])).filter(v => v > 0);
+  return vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
+}
 
 const Ratings = {
   all(){
-    try { return JSON.parse(localStorage.getItem(RATINGS_KEY)) || {}; }
-    catch { return {}; }
+    try {
+      const v2 = JSON.parse(localStorage.getItem(RATINGS_KEY));
+      if(v2) return v2;
+      // one-time migration: v1 stored a single star value per destination
+      const v1 = JSON.parse(localStorage.getItem(RATINGS_KEY_OLD));
+      if(!v1) return {};
+      const migrated = {};
+      Object.entries(v1).forEach(([id, r]) => {
+        const scores = {};
+        CATEGORY_KEYS.forEach(k => scores[k] = Number(r.stars) || 0);
+        migrated[id] = { scores, review:r.review || '', ts:r.ts || Date.now() };
+      });
+      localStorage.setItem(RATINGS_KEY, JSON.stringify(migrated));
+      return migrated;
+    } catch { return {}; }
   },
   get(id){ return this.all()[id] || null; },
-  set(id, stars, review){
+
+  /** scores is a partial map of category key -> 1..5 */
+  set(id, scores, review){
     const all = this.all();
-    all[id] = { stars:Number(stars), review:String(review || '').slice(0, 400), ts:Date.now() };
+    const clean = {};
+    CATEGORY_KEYS.forEach(k => {
+      const v = Number(scores[k]);
+      if(v >= 1 && v <= 5) clean[k] = v;
+    });
+    all[id] = { scores:clean, review:String(review || '').slice(0, 400), ts:Date.now() };
     localStorage.setItem(RATINGS_KEY, JSON.stringify(all));
     return all[id];
   },
@@ -151,17 +187,38 @@ const Ratings = {
     delete all[id];
     localStorage.setItem(RATINGS_KEY, JSON.stringify(all));
   },
-  /** Blend the sample community score with this browser's rating. */
+
+  /**
+   * Blend this browser's rating into the sample community scores.
+   * Returns per-category values plus an overall mean.
+   */
   score(dest){
     const mine = this.get(dest.id);
-    const base = dest.seedScore * dest.seedVotes;
-    if(!mine) return { value:dest.seedScore, votes:dest.seedVotes, mine:null };
+    const categories = {};
+    CATEGORY_KEYS.forEach(k => {
+      const seed = dest.seedScores[k];
+      const own  = mine?.scores?.[k];
+      categories[k] = own
+        ? seed * (1 - MY_WEIGHT) + own * MY_WEIGHT
+        : seed;
+    });
     return {
-      value: (base + mine.stars) / (dest.seedVotes + 1),
-      votes: dest.seedVotes + 1,
-      mine
+      categories,
+      value: meanScore(categories),
+      votes: mine ? dest.seedVotes + 1 : dest.seedVotes,
+      mine,
+      /** community-only score, for showing alongside the blend */
+      community: meanScore(dest.seedScores),
+      blended: !!mine
     };
   },
+
+  /** Score for one category, or the overall mean when key is 'overall'. */
+  by(dest, key){
+    const s = this.score(dest);
+    return key && key !== 'overall' ? s.categories[key] : s.value;
+  },
+
   count(){ return Object.keys(this.all()).length; }
 };
 
@@ -194,6 +251,13 @@ function tierFromCourses(dest, courseNames){
   return dest ? dest.priceTier : null;
 }
 
+/** The category a destination scores highest in — its selling point. */
+function bestCategory(scored){
+  const key = CATEGORY_KEYS.reduce((a, b) =>
+    scored.categories[b] > scored.categories[a] ? b : a);
+  return CATEGORY_BY_KEY[key];
+}
+
 /* ---------- destination card ---------- */
 function terrainStyle(d){
   const [c1,c2,c3,c4] = d.palette;
@@ -222,6 +286,7 @@ function destinationCard(d, rank){
         <div class="card-foot">
           <span>${starsHTML(s.value)} <span class="score">${s.value.toFixed(1)}</span>
             <span class="muted small">(${s.votes})</span></span>
+          <span class="pill">Best for ${esc(bestCategory(s).short.toLowerCase())}</span>
         </div>
         <div class="card-actions">
           ${trip ? `<a class="btn btn-ghost btn-sm" href="trips.html#${trip.id}">The itinerary</a>` : ''}

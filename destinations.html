@@ -22,7 +22,7 @@
 <meta name="twitter:description" content="Twenty of the best US golf travel destinations, with courses, seasons, airports, access rules and direct links for tee times. Filter by month, region and budget.">
 <meta name="twitter:image" content="https://yearlygolftrip.netlify.app/assets/og-image.jpg">
 
-<link rel="stylesheet" href="assets/css/style.css?v=11">
+<link rel="stylesheet" href="assets/css/style.css?v=13">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>⛳</text></svg>">
 </head>
 <body>
@@ -64,10 +64,24 @@
           </select>
         </div>
         <div class="field">
+          <label for="f-category">Rated on</label>
+          <select id="f-category"></select>
+        </div>
+        <div class="field">
+          <label for="f-min">Min. score</label>
+          <select id="f-min">
+            <option value="0">Any</option>
+            <option value="4">4.0+</option>
+            <option value="4.3">4.3+</option>
+            <option value="4.5">4.5+</option>
+            <option value="4.7">4.7+</option>
+          </select>
+        </div>
+        <div class="field">
           <label for="f-sort">Sort by</label>
           <select id="f-sort">
             <option value="editor">Editor score</option>
-            <option value="rated">Community rating</option>
+            <option value="rated">Rating in that category</option>
             <option value="price">Price, low to high</option>
             <option value="courses">Most courses</option>
             <option value="travel">Easiest to reach</option>
@@ -90,7 +104,8 @@
       <p class="small muted" style="margin-top:2.5rem;max-width:70ch">
         Cost is shown as a tier ($ – $$$$) rather than a dollar figure, because green fees and room
         rates change constantly — use the course links for live pricing and tee times. Community scores
-        are sample seed data, not real reviews; ratings you leave are stored in this browser only.
+        are sample seed data, not real reviews; ratings you leave are stored in this browser only
+        and are blended into your view at 25%.
       </p>
     </div>
   </section>
@@ -98,8 +113,8 @@
 
 <footer id="site-footer"></footer>
 
-<script src="assets/js/data.js?v=11"></script>
-<script src="assets/js/app.js?v=11"></script>
-<script src="assets/js/destinations.js?v=11"></script>
+<script src="assets/js/data.js?v=13"></script>
+<script src="assets/js/app.js?v=13"></script>
+<script src="assets/js/destinations.js?v=13"></script>
 </body>
 </html>
