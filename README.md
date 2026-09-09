@@ -1,7 +1,7 @@
-# The Annual Golf Trip
+# Yearly Golf Trip
 
-A static site for planning golf travel: browse the twenty US golf areas worth
-building a trip around, copy one of the twenty ready-made itineraries, build your own day-by-day
+A static site for planning golf travel: browse the twenty-six US golf areas worth
+building a trip around, copy one of the twenty-six ready-made itineraries, build your own day-by-day
 schedule, and share it as a link.
 
 ## Running it
@@ -19,9 +19,9 @@ python3 -m http.server 8791
 | File | What it does |
 |---|---|
 | `index.html` | Home — hero, **trip matcher**, featured destinations, how it works, top ten |
-| `destinations.html` | All 20 destinations, filterable; detail drawer with courses, lodging and the rating widget |
+| `destinations.html` | All 26 destinations, filterable; detail drawer with courses, lodging and the rating widget |
 | `top-rated.html` | Leaderboard — rank by community score, editor score, or value; plus your own reviews |
-| `trips.html` | Twenty example itineraries — one per destination; card grid, region filter, detail drawer, each loadable into the builder |
+| `trips.html` | Twenty-six example itineraries — one per destination; card grid, region filter, detail drawer, each loadable into the builder |
 | `builder.html` | The itinerary builder — days, courses, tee times, lodging, share link |
 
 ## How the data works
@@ -76,14 +76,14 @@ Two data fields exist purely for this:
 
 ### Getting there
 
-`travelEase` rates how much of a hassle a destination is to reach: `1` = major
-hub and a short drive (Long Island, Scottsdale, Vegas), `4` = a proper mission
-(Bandon, Nebraska Sandhills). `travelNote` is a sentence of detail, and the
-existing `airport` field names the airports.
+`airport` names the airports and `gettingThere` is a sentence on what the
+journey is actually like. Both are factual and editorial.
 
-It surfaces as a pill on every destination card, a meter and panel in the
-destination detail, a row in each trip's sidebar, an "Easiest to reach" sort
-option, and question five of the matcher.
+There is deliberately **no travel-difficulty rating**. An earlier build scored
+each destination 1–4 and rendered "A mission" / "Straightforward" badges with a
+little plane; it was removed because the subjective half of that question is
+better answered by the `transport` rating category, which real visitors fill
+in. Facts here, opinions from ratings.
 
 ### Ratings — eight categories
 
@@ -131,28 +131,25 @@ Myrtle Beach scoring high on Fun and low on Quality, or Bandon topping Fun
 while sitting near the bottom on Transport, is the whole point — a single
 combined score hides all of it.
 
-### The 25% weighting
+### Nothing is seeded
 
-Ratings live in `localStorage` under `annualgolftrip.ratings.v2` and never
-leave the browser. `seedScores` and `seedVotes` in `data.js` are **sample
-data**, not real reviews.
+Every destination starts **unrated**. There are no `seedScores`, no invented
+vote counts, and no sample reviews — a number on this site always came from
+somebody actually rating that place. The leaderboards ship empty and say so.
 
-Those seed vote counts run into the hundreds, so blending a real rating in as
-one extra vote moved a score by about 0.004 — invisible, which made the promise
-that your rating shifts the table effectively false. Your rating is therefore
-given a fixed share instead:
+That was a deliberate reversal. An earlier build seeded plausible scores to
+give the tables shape, which meant the site displayed numbers nobody had ever
+given it, and a real rating blended into hundreds of fake votes moved a score
+by about 0.004. Both problems disappear when the seed data does.
 
-```js
-const MY_WEIGHT = 0.25;   // app.js
-blended = community * 0.75 + yours * 0.25
-```
+Ratings live in `localStorage` under `annualgolftrip.ratings.v3` (older `v2`
+data is migrated on first read). **There is no backend, so "people" currently
+means this browser** — ratings are not shared between visitors. Swapping in a
+real API means changing `Ratings.all()` and `Ratings.set()` and nothing else;
+every consumer goes through `Ratings.score()`.
 
-Every place a blended number appears says so. Categories you have not rated
-show the community number untouched. If real ratings ever arrive from a
-backend, delete `MY_WEIGHT` and go back to honest vote-count averaging.
-
-A one-time migration reads the old single-score `…ratings.v1` format and copies
-that value into all rated categories.
+Unrated things sort last rather than as zero, minimum-score filters exclude
+them, and `bestCategory()` returns null instead of guessing.
 
 ### Sharing### Sharing
 The builder packs the entire itinerary into the URL hash as base64url JSON
@@ -191,6 +188,10 @@ silently fall through. Never schedule a `private:true` course as a playing day.
 
 Append an object to `DESTINATIONS` in `assets/js/data.js`:
 
+Each destination also carries a `longBlurb` — a fuller paragraph shown behind
+the "Read more" toggle in the detail view, for people deciding rather than
+browsing.
+
 ```js
 {
   id:'slug', name:'Name', region:'State', country:'USA',
@@ -203,8 +204,8 @@ Append an object to `DESTINATIONS` in `assets/js/data.js`:
   priceTier:3, editorScore:9.0, seedScore:4.5, seedVotes:100,
   access:'Public / private / resort note',
   goodFor:['buddies','architecture'],   // drives the trip matcher
-  travelEase:3,                          // 1 = easy hub … 4 = a mission
-  travelNote:'A sentence on what getting there is actually like.',
+  gettingThere:'A sentence on what the journey is actually like.',
+  longBlurb:'A fuller paragraph, shown behind the Read more toggle.',
   site:'https://…',           // destination-level official site
   highlights:['…'], watchouts:['…'],
   courses:[{name:'', designer:'', par:72, tier:3, url:'https://…', note:''}],

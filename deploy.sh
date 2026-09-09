@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Deploy The Annual Golf Trip.
+# Deploy Yearly Golf Trip.
 #
 #   ./deploy.sh "what changed"
 #

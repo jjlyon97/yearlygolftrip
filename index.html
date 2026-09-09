@@ -3,26 +3,26 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>The Annual Golf Trip — Golf Trip Planning Hub</title>
+<title>Yearly Golf Trip — Golf Trip Planning Hub</title>
 <meta name="description" content="Plan a US golf trip end to end: answer five questions to find the right destination, browse the twenty best golf areas in America, and build a shareable day-by-day itinerary.">
 <link rel="canonical" href="https://yearlygolftrip.netlify.app/">
 
 <!-- how the link looks when it is shared -->
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="The Annual Golf Trip">
-<meta property="og:title" content="The Annual Golf Trip — Golf Trip Planning Hub">
+<meta property="og:site_name" content="Yearly Golf Trip">
+<meta property="og:title" content="Yearly Golf Trip — Golf Trip Planning Hub">
 <meta property="og:description" content="Plan a US golf trip end to end: answer five questions to find the right destination, browse the twenty best golf areas in America, and build a shareable day-by-day itinerary.">
 <meta property="og:url" content="https://yearlygolftrip.netlify.app/">
 <meta property="og:image" content="https://yearlygolftrip.netlify.app/assets/og-image.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="The Annual Golf Trip — plan the round first, book the trip around it">
+<meta property="og:image:alt" content="Yearly Golf Trip — plan the round first, book the trip around it">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="The Annual Golf Trip — Golf Trip Planning Hub">
+<meta name="twitter:title" content="Yearly Golf Trip — Golf Trip Planning Hub">
 <meta name="twitter:description" content="Plan a US golf trip end to end: answer five questions to find the right destination, browse the twenty best golf areas in America, and build a shareable day-by-day itinerary.">
 <meta name="twitter:image" content="https://yearlygolftrip.netlify.app/assets/og-image.jpg">
 
-<link rel="stylesheet" href="assets/css/style.css?v=16">
+<link rel="stylesheet" href="assets/css/style.css?v=22">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>⛳</text></svg>">
 </head>
 <body>
@@ -40,10 +40,9 @@
         <a class="btn btn-ghost" href="builder.html">Build your itinerary</a>
       </div>
       <div class="hero-stats">
-        <div class="hero-stat"><b id="stat-dest">20</b><span>US destinations</span></div>
-        <div class="hero-stat"><b id="stat-courses">106</b><span>Courses on file</span></div>
-        <div class="hero-stat"><b id="stat-trips">20</b><span>Ready-made trips</span></div>
-        <div class="hero-stat"><b>Free</b><span>No account needed</span></div>
+        <div class="hero-stat"><b id="stat-dest">26</b><span>Trips worth taking</span></div>
+        <div class="hero-stat"><b>5</b><span>Questions to your match</span></div>
+        <div class="hero-stat"><b>1</b><span>Link to send the group</span></div>
       </div>
     </div>
   </div>
@@ -56,7 +55,7 @@
           <p class="eyebrow">Trip matcher</p>
           <h2>Where should you go?</h2>
         </div>
-        <p>Five questions, about thirty seconds. We score all twenty destinations on when you can travel, who is coming and what you want to play.</p>
+        <p>Five questions, about thirty seconds. We score all twenty-six destinations on when you can travel, who is coming and what you want to play.</p>
       </div>
       <div class="matcher" id="matcher"></div>
     </div>
@@ -71,7 +70,7 @@
           <h2>Best US golf destinations</h2>
           <p style="margin-top:.5rem">Every one has a ready-made itinerary attached — open it, or start a blank plan of your own.</p>
         </div>
-        <a class="btn btn-ghost btn-sm" href="destinations.html">See all 20 →</a>
+        <a class="btn btn-ghost btn-sm" href="destinations.html">See all 26 →</a>
       </div>
       <div class="grid grid-3" id="featured-destinations"></div>
     </div>
@@ -91,7 +90,7 @@
         <div class="panel">
           <div class="day-num" style="margin-bottom:1rem">1</div>
           <h3>Pick where</h3>
-          <p class="small muted" style="margin:0">Twenty US golf areas with the courses worth playing, the best months, how hard each one is to reach and which airport you actually fly into.</p>
+          <p class="small muted" style="margin:0">Twenty-six US golf areas with the courses worth playing, the best months, how hard each one is to reach and which airport you actually fly into.</p>
         </div>
         <div class="panel">
           <div class="day-num" style="margin-bottom:1rem">2</div>
@@ -114,7 +113,7 @@
         <div>
           <p class="eyebrow">The leaderboard</p>
           <h2>The top ten</h2>
-          <p class="lede">Ranked by the Overall trip score people give each place. Rate the places you have played and this table re-orders — your ratings are blended into your own view of it.</p>
+          <p class="lede">Ranked by the Overall trip score people give each place. It starts empty and fills up as places get rated — nothing here is invented. Rate the places you have played and this table re-orders — your ratings are blended into your own view of it.</p>
           <div class="hero-actions" style="margin-top:1.4rem">
             <a class="btn btn-primary" href="top-rated.html">Full rankings →</a>
             <a class="btn btn-ghost" href="destinations.html">Rate a destination</a>
@@ -133,32 +132,37 @@
 
 <footer id="site-footer"></footer>
 
-<script src="assets/js/data.js?v=16"></script>
-<script src="assets/js/app.js?v=16"></script>
-<script src="assets/js/matcher.js?v=16"></script>
+<script src="assets/js/data.js?v=22"></script>
+<script src="assets/js/app.js?v=22"></script>
+<script src="assets/js/matcher.js?v=22"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  $('#stat-dest').textContent    = DESTINATIONS.length;
-  $('#stat-courses').textContent = DESTINATIONS.reduce((n, d) => n + d.courses.length, 0);
-  $('#stat-trips').textContent   = EXAMPLE_TRIPS.length;
+  $('#stat-dest').textContent = DESTINATIONS.length;
 
   // six highest editor scores
   const featured = [...DESTINATIONS].sort((a, b) => b.editorScore - a.editorScore).slice(0, 6);
   $('#featured-destinations').innerHTML = featured.map(d => destinationCard(d)).join('');
 
-  // top ten by community score
+  // top ten — only what has actually been rated
   const ranked = [...DESTINATIONS]
     .map(d => ({ d, s:Ratings.score(d) }))
+    .filter(r => r.s.rated)
     .sort((a, b) => b.s.value - a.s.value || b.d.editorScore - a.d.editorScore)
     .slice(0, 10);
 
-  $('#top-ten').innerHTML = ranked.map((r, i) => `
+  $('#top-ten').innerHTML = ranked.length ? ranked.map((r, i) => `
     <div class="lb-row">
       <span class="lb-rank">${i + 1}</span>
       <a class="lb-name" href="destinations.html#${r.d.id}">${esc(r.d.name)}
-        <span>${esc(r.d.region)} · ${PRICE_LABEL[r.d.priceTier]} · ✈ ${TRAVEL_SHORT[r.d.travelEase]}</span></a>
+        <span>${esc(r.d.region)} · ${PRICE_LABEL[r.d.priceTier]}</span></a>
       <span class="lb-score">${starsHTML(r.s.value)} <b>${r.s.value.toFixed(1)}</b></span>
-    </div>`).join('');
+    </div>`).join('') : `
+    <div class="empty-state" style="padding:2rem 1rem">
+      <h3 style="margin-bottom:.3em">Nothing rated yet</h3>
+      <p class="small" style="margin-bottom:1.2rem">This board fills up as people come back from trips
+        and score them. No seeded numbers, no invented reviews — it starts empty on purpose.</p>
+      <a class="btn btn-primary btn-sm" href="destinations.html">Rate somewhere you have played</a>
+    </div>`;
 });
 </script>
 </body>

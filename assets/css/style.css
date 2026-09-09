@@ -1,5 +1,5 @@
 /* ============================================================
-   The Annual Golf Trip — golf trip planning hub
+   Yearly Golf Trip — golf trip planning hub
    Design tokens
    ============================================================ */
 :root{
@@ -486,3 +486,12 @@ td .rank{font-family:var(--display);font-size:1.25rem;font-weight:700;color:var(
 }
 .mb-fill{width:100%;background:var(--green-600);border-radius:2px;opacity:.55}
 .mb-fill.on{background:var(--sand);opacity:1}
+
+/* ---------- expandable destination description ---------- */
+.more{
+  margin:.2rem 0 1rem;padding:1rem 1.15rem;
+  border-left:3px solid var(--sand);background:var(--cream);
+  border-radius:0 var(--radius-sm) var(--radius-sm) 0;
+}
+.more p{margin:0;color:var(--ink-soft)}
+#more-toggle{margin-bottom:1.2rem}

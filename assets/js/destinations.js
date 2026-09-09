@@ -14,7 +14,7 @@ function applyFilters(){
     if(state.price && String(d.priceTier) !== state.price) return false;
     if(state.style && d.style !== state.style) return false;
     if(state.month && !d.seasonMonths.includes(Number(state.month))) return false;
-    if(state.minScore && Ratings.by(d, state.category) < state.minScore) return false;
+    if(state.minScore && (Ratings.by(d, state.category) ?? -1) < state.minScore) return false;
     if(state.q){
       const hay = [d.name, d.region, d.country, d.tagline, d.blurb,
                    ...d.courses.map(c => c.name)].join(' ').toLowerCase();
@@ -25,7 +25,8 @@ function applyFilters(){
 
   const sorters = {
     editor:  (a, b) => b.editorScore - a.editorScore,
-    rated:   (a, b) => Ratings.by(b, state.category) - Ratings.by(a, state.category),
+    rated:   (a, b) => (Ratings.by(b, state.category) ?? -1) - (Ratings.by(a, state.category) ?? -1)
+                       || b.editorScore - a.editorScore,
     price:   (a, b) => a.priceTier - b.priceTier,
     name:    (a, b) => a.name.localeCompare(b.name),
     courses: (a, b) => b.courses.length - a.courses.length,
@@ -44,8 +45,6 @@ function applyFilters(){
          <p>Try widening the month or price range.</p>
        </div>`;
 }
-
-const dest_votes = d => d.seedVotes.toLocaleString('en-US');
 
 /* ---------- detail view ---------- */
 function renderDetail(id){
@@ -99,32 +98,24 @@ function renderDetail(id){
 
         <p class="lede">${esc(d.tagline)}</p>
         <p>${esc(d.blurb)}</p>
+        ${d.longBlurb ? `
+          <div class="more" id="more-${d.id}" hidden>
+            <p>${esc(d.longBlurb)}</p>
+          </div>
+          <button class="btn btn-ghost btn-sm no-print" id="more-toggle"
+                  aria-expanded="false" aria-controls="more-${d.id}">Read more ↓</button>` : ''}
 
         <div class="meta-row" style="margin:1.4rem 0 1.6rem;gap:1.6rem">
           <span>Season<br><b>${esc(d.season)}</b></span>
           <span>Cost<br><b>${PRICE_LABEL[d.priceTier]} ${PRICE_WORD[d.priceTier]}</b></span>
-          <span>Getting there<br><b>${TRAVEL_WORD[d.travelEase]}</b></span>
+          <span>Courses<br><b>${d.courses.length}</b></span>
           <span>Editor score<br><b>${d.editorScore.toFixed(1)}</b></span>
         </div>
 
         <div class="panel panel-tight getting-there" style="margin-bottom:1.6rem">
-          <div class="gt-head">
-            <span class="gt-plane">✈</span>
-            <div>
-              <h3 style="margin:0 0 .15em">Getting there</h3>
-              <p class="small muted" style="margin:0">${TRAVEL_WORD[d.travelEase]}</p>
-            </div>
-            <span class="gt-meter" aria-label="${TRAVEL_WORD[d.travelEase]}">
-              ${[1,2,3,4].map(n => `<i class="${n <= d.travelEase ? 'on' : ''}"></i>`).join('')}
-            </span>
-          </div>
+          <h3 style="margin:0 0 .6rem">Getting there</h3>
           <div class="cost-line"><span>Fly into</span><span><b>${esc(d.airport)}</b></span></div>
-          <p class="small" style="margin:.7rem 0 0">${esc(d.travelNote)}</p>
-        </div>
-
-        <div class="notice" style="margin-bottom:1.6rem">
-          <b>Access:</b> ${esc(d.access)}
-          ${d.site ? ` · <a href="${esc(d.site)}" target="_blank" rel="noopener noreferrer">Official site ↗</a>` : ''}
+          <p class="small" style="margin:.7rem 0 0">${esc(d.gettingThere)}</p>
         </div>
 
         <div class="grid grid-2" style="margin-bottom:1.8rem">
@@ -140,9 +131,9 @@ function renderDetail(id){
 
         <h3>How travellers rate it</h3>
         <p class="small muted" style="margin:-.4em 0 .9rem">
-          ${s.blended
-            ? `Blended — community ${100 - Math.round(MY_WEIGHT * 100)}%, your rating ${Math.round(MY_WEIGHT * 100)}%.`
-            : 'Community scores across eight categories. Rate it below and these become your blended view.'}
+          ${s.rated
+            ? 'Based on the ratings left so far.'
+            : 'Nothing here yet — these bars fill in as people rate the trip.'}
         </p>
         <div class="score-bars" style="margin-bottom:1.8rem">
           ${RATING_CATEGORIES.map(c => {
@@ -150,8 +141,8 @@ function renderDetail(id){
             return `
             <div class="score-bar">
               <span class="sb-label">${esc(c.label)}</span>
-              <span class="sb-track"><span class="sb-fill" style="width:${(v / 5 * 100).toFixed(1)}%"></span></span>
-              <span class="sb-val">${v.toFixed(1)}</span>
+              <span class="sb-track"><span class="sb-fill" style="width:${v ? (v / 5 * 100).toFixed(1) : 0}%"></span></span>
+              <span class="sb-val">${v ? v.toFixed(1) : '–'}</span>
             </div>`;
           }).join('')}
         </div>
@@ -171,10 +162,9 @@ function renderDetail(id){
         <div class="panel panel-tight" style="background:var(--cream)">
           <h3 style="margin-bottom:.2em">Rate ${esc(d.name)}</h3>
           <p class="small muted" style="margin-bottom:1.1rem">
-            Community <b>${s.community.toFixed(1)}</b> overall from ${dest_votes(d)} ratings.
             ${mine
-              ? `You have rated this, so the scores shown are blended — yours counts for ${Math.round(MY_WEIGHT * 100)}%.`
-              : 'Rate the categories you have an opinion on; skip the rest.'}
+              ? 'You have rated this. Change anything below and save again.'
+              : 'Nobody has rated this yet. Score the categories you have an opinion on and skip the rest.'}
           </p>
 
           <div class="rate-grid">
@@ -191,8 +181,8 @@ function renderDetail(id){
                               data-cat="${c.key}" data-n="${n}"
                               aria-label="${esc(c.label)}: ${n} of 5">★</button>`).join('')}
                   </div>
-                  <span class="rate-community small muted"
-                        title="Community average">${s.categories[c.key].toFixed(1)}</span>
+                  <span class="rate-community small muted" title="Score so far">${
+                    s.categories[c.key] ? s.categories[c.key].toFixed(1) : '–'}</span>
                 </div>
               </div>`).join('')}
           </div>
@@ -240,6 +230,17 @@ function renderDetail(id){
     applyFilters();
     renderDetail(d.id);
   });
+
+  const moreBtn = $('#more-toggle');
+  if(moreBtn){
+    const panel = $(`#more-${d.id}`);
+    moreBtn.addEventListener('click', () => {
+      const open = panel.hidden;
+      panel.hidden = !open;
+      moreBtn.setAttribute('aria-expanded', String(open));
+      moreBtn.textContent = open ? 'Show less ↑' : 'Read more ↓';
+    });
+  }
 
   $('#close-detail').addEventListener('click', () => {
     history.replaceState(null, '', location.pathname);

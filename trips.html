@@ -3,26 +3,26 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Example Golf Trips — The Annual Golf Trip</title>
+<title>Example Golf Trips — Yearly Golf Trip</title>
 <meta name="description" content="Twenty ready-made US golf trip itineraries — one for every destination, with day-by-day schedules, tee times and links to every course. Copy any of them into the builder.">
 <link rel="canonical" href="https://yearlygolftrip.netlify.app/trips.html">
 
 <!-- how the link looks when it is shared -->
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="The Annual Golf Trip">
-<meta property="og:title" content="Example Golf Trips — The Annual Golf Trip">
+<meta property="og:site_name" content="Yearly Golf Trip">
+<meta property="og:title" content="Example Golf Trips — Yearly Golf Trip">
 <meta property="og:description" content="Twenty ready-made US golf trip itineraries — one for every destination, with day-by-day schedules, tee times and links to every course. Copy any of them into the builder.">
 <meta property="og:url" content="https://yearlygolftrip.netlify.app/trips.html">
 <meta property="og:image" content="https://yearlygolftrip.netlify.app/assets/og-image.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="The Annual Golf Trip — plan the round first, book the trip around it">
+<meta property="og:image:alt" content="Yearly Golf Trip — plan the round first, book the trip around it">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Example Golf Trips — The Annual Golf Trip">
+<meta name="twitter:title" content="Example Golf Trips — Yearly Golf Trip">
 <meta name="twitter:description" content="Twenty ready-made US golf trip itineraries — one for every destination, with day-by-day schedules, tee times and links to every course. Copy any of them into the builder.">
 <meta name="twitter:image" content="https://yearlygolftrip.netlify.app/assets/og-image.jpg">
 
-<link rel="stylesheet" href="assets/css/style.css?v=16">
+<link rel="stylesheet" href="assets/css/style.css?v=22">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>⛳</text></svg>">
 </head>
 <body>
@@ -51,8 +51,8 @@
 
 <footer id="site-footer"></footer>
 
-<script src="assets/js/data.js?v=16"></script>
-<script src="assets/js/app.js?v=16"></script>
+<script src="assets/js/data.js?v=22"></script>
+<script src="assets/js/app.js?v=22"></script>
 <script>
 let regionFilter = '';
 
@@ -151,7 +151,6 @@ function renderDetail(id){
           <div class="cost-line"><span>Nights</span><span><b>${t.nights}</b></span></div>
           <div class="cost-line"><span>Group size</span><span><b>${t.travelers}</b></span></div>
           <div class="cost-line"><span>Best months</span><span><b>${esc(d.season)}</b></span></div>
-          <div class="cost-line"><span>Getting there</span><span><b>${TRAVEL_SHORT[d.travelEase]}</b></span></div>
           <div class="cost-line"><span>Fly into</span><span style="text-align:right;max-width:60%"><b>${esc(d.airport)}</b></span></div>
           <div class="cost-total"><span>Trip cost</span>
             <b>${PRICE_LABEL[tier]}<span class="small muted" style="font-family:var(--sans);font-weight:600"> ${PRICE_WORD[tier]}</span></b></div>

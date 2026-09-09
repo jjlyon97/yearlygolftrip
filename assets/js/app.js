@@ -1,5 +1,5 @@
 /* ============================================================
-   The Annual Golf Trip — shared app logic
+   Yearly Golf Trip — shared app logic
    ============================================================ */
 
 /* ---------- tiny helpers ---------- */
@@ -77,7 +77,7 @@ function renderChrome(){
     header.className = 'site-header';
     header.innerHTML = `
       <div class="wrap nav">
-        <a class="brand" href="index.html">${BRAND_MARK} <span>The Annual Golf Trip</span></a>
+        <a class="brand" href="index.html">${BRAND_MARK} <span>Yearly Golf Trip</span></a>
         <button class="nav-toggle" aria-expanded="false" aria-label="Menu">☰</button>
         <nav class="nav-links">
           ${NAV_LINKS.map(l => `<a href="${l.href}"${l.href === here ? ' aria-current="page"' : ''}>${l.label}</a>`).join('')}
@@ -97,7 +97,7 @@ function renderChrome(){
       <div class="wrap">
         <div class="footer-grid">
           <div>
-            <div class="brand">${BRAND_MARK} <span>The Annual Golf Trip</span></div>
+            <div class="brand">${BRAND_MARK} <span>Yearly Golf Trip</span></div>
             <p class="small" style="max-width:38ch">Trip planning for people who pick the holiday around the tee sheet. Build an itinerary, price it out, send it to the group.</p>
           </div>
           <div>
@@ -118,7 +118,7 @@ function renderChrome(){
           </div>
         </div>
         <div class="footer-bottom">
-          <span>© ${new Date().getFullYear()} The Annual Golf Trip — a demo project.</span>
+          <span>© ${new Date().getFullYear()} Yearly Golf Trip — a demo project.</span>
           <span>Prices and scores are sample planning estimates, not live rates.</span>
         </div>
       </div>`;
@@ -132,17 +132,19 @@ function renderChrome(){
    Seed scores in data.js are sample content used to give the
    leaderboard a starting shape — they are not real reviews.
    ============================================================ */
-/* How much your own rating counts toward the score you see.
-   The community numbers here are seeded sample data with vote counts in the
-   hundreds, so a single extra vote would move a score by ~0.004 — invisible,
-   and it would make "rate a few and watch the table move" a lie. Your rating
-   is therefore given a fixed share instead, and the UI says so wherever a
-   blended number is shown. Nobody else sees your ratings; they never leave
-   this browser. */
-const MY_WEIGHT = 0.25;
+/* ============================================================
+   Ratings store
+   ------------------------------------------------------------
+   Nothing is seeded. Every destination starts unrated and fills
+   up as people score it, so a number on this site always came
+   from somebody actually rating it.
 
-const RATINGS_KEY     = 'annualgolftrip.ratings.v2';
-const RATINGS_KEY_OLD = 'annualgolftrip.ratings.v1';
+   No backend yet, so "people" currently means this browser:
+   ratings live in localStorage and are not shared. Swapping in
+   a real API means changing `all()` and `set()` and nothing else.
+   ============================================================ */
+const RATINGS_KEY     = 'annualgolftrip.ratings.v3';
+const RATINGS_KEY_OLD = 'annualgolftrip.ratings.v2';
 
 /** Mean of whatever category scores are present, or null. */
 function meanScore(scores, keys = CATEGORY_KEYS){
@@ -153,19 +155,11 @@ function meanScore(scores, keys = CATEGORY_KEYS){
 const Ratings = {
   all(){
     try {
-      const v2 = JSON.parse(localStorage.getItem(RATINGS_KEY));
-      if(v2) return v2;
-      // one-time migration: v1 stored a single star value per destination
-      const v1 = JSON.parse(localStorage.getItem(RATINGS_KEY_OLD));
-      if(!v1) return {};
-      const migrated = {};
-      Object.entries(v1).forEach(([id, r]) => {
-        const scores = {};
-        CATEGORY_KEYS.forEach(k => scores[k] = Number(r.stars) || 0);
-        migrated[id] = { scores, review:r.review || '', ts:r.ts || Date.now() };
-      });
-      localStorage.setItem(RATINGS_KEY, JSON.stringify(migrated));
-      return migrated;
+      const v3 = JSON.parse(localStorage.getItem(RATINGS_KEY));
+      if(v3) return v3;
+      const v2 = JSON.parse(localStorage.getItem(RATINGS_KEY_OLD));
+      if(v2){ localStorage.setItem(RATINGS_KEY, JSON.stringify(v2)); return v2; }
+      return {};
     } catch { return {}; }
   },
   get(id){ return this.all()[id] || null; },
@@ -189,37 +183,29 @@ const Ratings = {
   },
 
   /**
-   * Blend this browser's rating into the sample community scores.
-   * Returns per-category values plus an overall mean.
+   * Everything known about how a destination has been rated.
+   * `rated` is false until somebody scores it — the UI shows an
+   * invitation rather than a fake number.
    */
   score(dest){
     const mine = this.get(dest.id);
     const categories = {};
-    CATEGORY_KEYS.forEach(k => {
-      const seed = dest.seedScores[k];
-      const own  = mine?.scores?.[k];
-      categories[k] = own
-        ? seed * (1 - MY_WEIGHT) + own * MY_WEIGHT
-        : seed;
-    });
+    CATEGORY_KEYS.forEach(k => categories[k] = mine?.scores?.[k] ?? null);
+    const rated = CATEGORY_KEYS.some(k => categories[k] != null);
     return {
       categories,
-      /* headline = the Overall trip score people actually give it */
-      value: categories.overall,
-      /* mean of the detail categories, for anywhere that wants an average */
-      mean: meanScore(categories, DETAIL_KEYS),
-      votes: mine ? dest.seedVotes + 1 : dest.seedVotes,
-      mine,
-      /** community-only headline, for showing alongside the blend */
-      community: dest.seedScores.overall,
-      blended: !!mine
+      rated,
+      /* headline: the Overall trip score, or the mean of what was rated */
+      value: rated ? (categories.overall ?? meanScore(categories)) : null,
+      mean:  meanScore(categories, DETAIL_KEYS),
+      votes: mine ? 1 : 0,
+      mine
     };
   },
 
-  /** Score for a single category. */
+  /** Score for a single category, or null when nobody has rated it. */
   by(dest, key){
-    const s = this.score(dest);
-    return s.categories[key] ?? s.value;
+    return this.score(dest).categories[key] ?? null;
   },
 
   count(){ return Object.keys(this.all()).length; }
@@ -227,18 +213,17 @@ const Ratings = {
 
 /* ---------- star rendering ---------- */
 function starsHTML(value, max = 5){
-  const filled = Math.round(value);
-  return `<span class="stars" aria-label="${value.toFixed(1)} out of ${max}">` +
+  const filled = Math.round(value || 0);
+  return `<span class="stars" aria-label="${(value || 0).toFixed(1)} out of ${max}">` +
     Array.from({length:max}, (_, i) =>
       `<span class="${i < filled ? '' : 'off'}">★</span>`).join('') +
     `</span>`;
 }
 
 /* ---------- cost tiers ----------
-   One source of truth: a trip's cost tier is the rounded mean of the
-   tiers of the courses on it, falling back to the destination's own
-   tier when nothing has been matched yet. Used by the builder, the
-   example-trip cards and the home page alike. */
+   One source of truth: a trip's cost tier is the rounded mean of the tiers of
+   the courses on it, falling back to the destination's own tier when nothing
+   has been matched. Used by the builder and the example-trip cards alike. */
 function courseInDest(dest, name){
   if(!dest || !name) return null;
   const n = String(name).trim().toLowerCase();
@@ -256,7 +241,9 @@ function tierFromCourses(dest, courseNames){
 
 /** The category a destination scores highest in — its selling point. */
 function bestCategory(scored){
-  const key = DETAIL_KEYS.reduce((a, b) =>
+  const rated = DETAIL_KEYS.filter(k => scored.categories[k] != null);
+  if(!rated.length) return null;
+  const key = rated.reduce((a, b) =>
     scored.categories[b] > scored.categories[a] ? b : a);
   return CATEGORY_BY_KEY[key];
 }
@@ -269,6 +256,7 @@ function terrainStyle(d){
 
 function destinationCard(d, rank){
   const s = Ratings.score(d);
+  const best = bestCategory(s);
   const trip = TRIP_BY_DEST[d.id];
   return `
     <article class="card" data-id="${d.id}">
@@ -284,12 +272,13 @@ function destinationCard(d, rank){
         <div class="pills">
           <span class="pill">${esc(d.season)}</span>
           <span class="pill pill-sand">${PRICE_LABEL[d.priceTier]} ${PRICE_WORD[d.priceTier]}</span>
-          <span class="pill pill-travel" title="${esc(d.airport)}">✈ ${TRAVEL_SHORT[d.travelEase]}</span>
+          <span class="pill">${d.courses.length} courses</span>
         </div>
         <div class="card-foot">
-          <span>${starsHTML(s.value)} <span class="score">${s.value.toFixed(1)}</span>
-            <span class="muted small">(${s.votes})</span></span>
-          <span class="pill">Best for ${esc(bestCategory(s).short.toLowerCase())}</span>
+          ${s.rated
+            ? `<span>${starsHTML(s.value)} <span class="score">${s.value.toFixed(1)}</span></span>
+               ${best ? `<span class="pill">Best for ${esc(best.short.toLowerCase())}</span>` : ''}`
+            : `<span class="muted small">Not rated yet — <a href="destinations.html#${d.id}">be the first</a></span>`}
         </div>
         <div class="card-actions">
           ${trip ? `<a class="btn btn-ghost btn-sm" href="trips.html#${trip.id}">The itinerary</a>` : ''}

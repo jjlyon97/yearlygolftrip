@@ -3,26 +3,26 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Top Rated Golf Destinations — The Annual Golf Trip</title>
+<title>Top Rated Golf Destinations — Yearly Golf Trip</title>
 <meta name="description" content="The golf travel leaderboard — destinations ranked by community rating, including the ones you have rated yourself.">
 <link rel="canonical" href="https://yearlygolftrip.netlify.app/top-rated.html">
 
 <!-- how the link looks when it is shared -->
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="The Annual Golf Trip">
-<meta property="og:title" content="Top Rated Golf Destinations — The Annual Golf Trip">
+<meta property="og:site_name" content="Yearly Golf Trip">
+<meta property="og:title" content="Top Rated Golf Destinations — Yearly Golf Trip">
 <meta property="og:description" content="The golf travel leaderboard — destinations ranked by community rating, including the ones you have rated yourself.">
 <meta property="og:url" content="https://yearlygolftrip.netlify.app/top-rated.html">
 <meta property="og:image" content="https://yearlygolftrip.netlify.app/assets/og-image.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="The Annual Golf Trip — plan the round first, book the trip around it">
+<meta property="og:image:alt" content="Yearly Golf Trip — plan the round first, book the trip around it">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Top Rated Golf Destinations — The Annual Golf Trip">
+<meta name="twitter:title" content="Top Rated Golf Destinations — Yearly Golf Trip">
 <meta name="twitter:description" content="The golf travel leaderboard — destinations ranked by community rating, including the ones you have rated yourself.">
 <meta name="twitter:image" content="https://yearlygolftrip.netlify.app/assets/og-image.jpg">
 
-<link rel="stylesheet" href="assets/css/style.css?v=16">
+<link rel="stylesheet" href="assets/css/style.css?v=22">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>⛳</text></svg>">
 </head>
 <body>
@@ -33,7 +33,7 @@
     <div class="wrap">
       <p class="eyebrow">The leaderboard</p>
       <h1 style="max-width:16ch">Top rated destinations</h1>
-      <p class="lede">Rank all twenty by whichever category actually matters to you — the golf, the fun, the travel, the value, or the bit that keeps non-golfers happy. Anything you rate is blended into your view of the table.</p>
+      <p class="lede">The table starts empty and fills up as places get rated. Rank whatever has been scored by the category that matters to you — the golf, the fun, the travel, the value, or the bit that keeps non-golfers happy.</p>
     </div>
   </section>
 
@@ -46,6 +46,8 @@
         <div><h2 style="font-size:1.6rem;margin:0">Full rankings</h2></div>
         <div class="chip-row" id="rank-chips"></div>
       </div>
+
+      <p class="small muted" id="unrated-note" style="margin-bottom:1rem"></p>
 
       <div class="table-wrap">
         <table>
@@ -82,18 +84,21 @@
 
 <footer id="site-footer"></footer>
 
-<script src="assets/js/data.js?v=16"></script>
-<script src="assets/js/app.js?v=16"></script>
+<script src="assets/js/data.js?v=22"></script>
+<script src="assets/js/app.js?v=22"></script>
 <script>
 let rankKey = 'overall';
 
 function ranked(){
   return DESTINATIONS
     .map(d => ({ d, s:Ratings.score(d) }))
-    .sort((a, b) => {
-      return b.s.categories[rankKey] - a.s.categories[rankKey]
-          || b.d.editorScore - a.d.editorScore;
-    });
+    .filter(r => r.s.categories[rankKey] != null)
+    .sort((a, b) => b.s.categories[rankKey] - a.s.categories[rankKey]
+                 || b.d.editorScore - a.d.editorScore);
+}
+
+function unrated(){
+  return DESTINATIONS.filter(d => !Ratings.score(d).rated);
 }
 
 function metricOf(r){ return r.s.categories[rankKey]; }
@@ -113,16 +118,27 @@ function render(){
   const label = CATEGORY_BY_KEY[rankKey].label;
   $('#th-metric').textContent = label;
 
-  $('#podium').innerHTML = rows.slice(0, 3).map((r, i) =>
-    destinationCard(r.d, i + 1)).join('');
+  $('#podium').innerHTML = rows.length
+    ? rows.slice(0, 3).map((r, i) => destinationCard(r.d, i + 1)).join('')
+    : `<div class="empty-state" style="grid-column:1/-1">
+         <h3>No ratings yet</h3>
+         <p>Nothing on this site is scored until somebody actually plays it and says so.
+            Rate a destination you have been to and it appears here straight away.</p>
+         <a class="btn btn-primary btn-sm" href="destinations.html">Rate a destination</a>
+       </div>`;
 
-  $('#rank-body').innerHTML = rows.map((r, i) => {
+  const remaining = unrated().length;
+  $('#unrated-note').innerHTML = remaining
+    ? `${remaining} of ${DESTINATIONS.length} destinations are still waiting for their first rating.`
+    : 'Every destination has been rated.';
+
+  $('#rank-body').innerHTML = rows.length ? rows.map((r, i) => {
     const m = metricOf(r);
     return `
     <tr>
       <td><span class="rank">${i + 1}</span></td>
       <td><b><a href="destinations.html#${r.d.id}" style="text-decoration:none">${esc(r.d.name)}</a></b>
-          <div class="small muted">${r.d.courses.length} courses · ✈ ${TRAVEL_SHORT[r.d.travelEase]}</div></td>
+          <div class="small muted">${r.d.courses.length} courses</div></td>
       <td class="small">${esc(r.d.region)}</td>
       <td>${starsHTML(m)} <b>${m.toFixed(1)}</b>
           <div class="small muted">${r.s.votes} ratings</div></td>
@@ -132,7 +148,8 @@ function render(){
             ? `<b>${(r.s.mine.scores.overall || meanScore(r.s.mine.scores) || 0).toFixed(1)}</b>`
             : `<a class="small" href="destinations.html#${r.d.id}">Rate</a>`}</td>
     </tr>`;
-  }).join('');
+  }).join('') : `<tr><td colspan="7" class="muted" style="text-align:center;padding:2rem">
+      Nothing rated in this category yet.</td></tr>`;
 
   const mine = DESTINATIONS
     .map(d => ({ d, r:Ratings.get(d.id) }))
@@ -157,7 +174,7 @@ function render(){
   }).join('') : `
     <div class="empty-state">
       <h3>No ratings yet</h3>
-      <p>Rate a destination across the eight categories and it will show up here — and shift the table above.</p>
+      <p>Rate a destination across the eight categories and it will show up here — and appear in the table above.</p>
       <a class="btn btn-primary btn-sm" href="destinations.html">Browse destinations</a>
     </div>`;
 }
