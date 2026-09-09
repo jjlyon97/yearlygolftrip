@@ -22,7 +22,7 @@
 <meta name="twitter:description" content="The golf travel leaderboard — destinations ranked by community rating, including the ones you have rated yourself.">
 <meta name="twitter:image" content="https://yearlygolftrip.netlify.app/assets/og-image.jpg">
 
-<link rel="stylesheet" href="assets/css/style.css?v=22">
+<link rel="stylesheet" href="assets/css/style.css?v=25">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>⛳</text></svg>">
 </head>
 <body>
@@ -47,7 +47,8 @@
         <div class="chip-row" id="rank-chips"></div>
       </div>
 
-      <p class="small muted" id="unrated-note" style="margin-bottom:1rem"></p>
+      <p class="small muted" id="unrated-note" style="margin-bottom:.4rem"></p>
+      <p class="small" id="ratings-mode" style="margin-bottom:1rem"></p>
 
       <div class="table-wrap">
         <table>
@@ -84,8 +85,9 @@
 
 <footer id="site-footer"></footer>
 
-<script src="assets/js/data.js?v=22"></script>
-<script src="assets/js/app.js?v=22"></script>
+<script src="assets/js/config.js?v=25"></script>
+<script src="assets/js/data.js?v=25"></script>
+<script src="assets/js/app.js?v=25"></script>
 <script>
 let rankKey = 'overall';
 
@@ -126,6 +128,18 @@ function render(){
             Rate a destination you have been to and it appears here straight away.</p>
          <a class="btn btn-primary btn-sm" href="destinations.html">Rate a destination</a>
        </div>`;
+
+  const mode = $('#ratings-mode');
+  if(Ratings.shared && Ratings.online){
+    mode.innerHTML = '<span class="pill">Shared ratings on</span> ' +
+      '<span class="muted">Everyone who visits sees the same scores.</span>';
+  } else if(Ratings.shared){
+    mode.innerHTML = '<span class="pill pill-warn">Shared ratings unreachable</span> ' +
+      '<span class="muted">Showing your own ratings only — check the browser console.</span>';
+  } else {
+    mode.innerHTML = '<span class="pill pill-sand">Local ratings</span> ' +
+      '<span class="muted">Ratings are stored in this browser and not shared yet — see SETUP-RATINGS.md.</span>';
+  }
 
   const remaining = unrated().length;
   $('#unrated-note').innerHTML = remaining
@@ -179,7 +193,8 @@ function render(){
     </div>`;
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  await Ratings.load();
   $('#rank-chips').innerHTML = RATING_CATEGORIES.map((c, i) =>
     `<button class="chip${i === 0 ? ' active' : ''}" data-rank="${c.key}">${c.label}</button>`).join('');
 

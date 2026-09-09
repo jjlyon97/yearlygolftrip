@@ -1,0 +1,79 @@
+<!doctype html><meta charset="utf-8"><body><pre id="o">running…</pre>
+<script>
+/* pretend Supabase is configured, and stub the network */
+window.SUPABASE_CONFIG = { url:'https://fake.supabase.co', anonKey:'eyJfake' };
+window.__posts = [];
+window.__rows = [
+  {destination_id:'bandon-dunes', rater_id:'aaa', scores:{overall:5, fun:5, quality:5}, review:'Best trip ever', updated_at:'2026-09-01'},
+  {destination_id:'bandon-dunes', rater_id:'bbb', scores:{overall:4, fun:4, quality:5}, review:'',              updated_at:'2026-09-02'},
+  {destination_id:'maui',         rater_id:'ccc', scores:{overall:3, lodging:5},        review:'Great with kids',updated_at:'2026-09-03'}
+];
+window.fetch = async (url, opts = {}) => {
+  if((opts.method || 'GET') === 'GET') return { ok:true, status:200, json: async () => window.__rows };
+  window.__posts.push({ url, body: JSON.parse(opts.body), prefer: opts.headers['Prefer'] });
+  return { ok:true, status:201, text: async () => '' };
+};
+</script>
+<script src="/assets/js/data.js"></script>
+<script src="/assets/js/app.js"></script>
+<script>
+(async () => {
+  const L = [], ok = (c, m) => L.push((c ? 'PASS  ' : 'FAIL  ') + m);
+  L.push('shared mode detected: ' + Ratings.shared);
+  await Ratings.load();
+  ok(Ratings.online === true, 'went online after a successful fetch');
+
+  // averages across OTHER PEOPLE's rows, not just mine
+  const b = Ratings.score(DEST_BY_ID['bandon-dunes']);
+  ok(b.rated === true,            'bandon reads as rated');
+  ok(b.votes === 2,               'bandon shows 2 votes (got ' + b.votes + ')');
+  ok(b.categories.overall === 4.5,'overall averaged 5 and 4 -> 4.5 (got ' + b.categories.overall + ')');
+  ok(b.categories.quality === 5,  'quality averaged 5 and 5 -> 5');
+  ok(b.categories.depth === null, 'unrated category stays null');
+  ok(b.value === 4.5,             'headline uses the Overall average');
+  ok(b.mine === null,             'none of those rows are mine');
+
+  const m = Ratings.score(DEST_BY_ID['maui']);
+  ok(m.categories.lodging === 5 && m.categories.fun === null, 'partial rows average per category');
+
+  const none = Ratings.score(DEST_BY_ID['st-george']);
+  ok(none.rated === false && none.value === null, 'a destination with no rows is unrated');
+
+  // writing
+  await Ratings.set('st-george', {overall:5, value:5, transport:2, bogus:9}, 'Red rock is unreal');
+  const p = window.__posts[0];
+  ok(window.__posts.length === 1,                       'one POST issued');
+  ok(p.prefer.includes('resolution=merge-duplicates'),  'upserts rather than duplicating');
+  ok(p.body.destination_id === 'st-george',             'posts the right destination');
+  ok(!!p.body.rater_id && p.body.rater_id.length >= 8,  'sends a rater id');
+  ok(p.body.scores.bogus === undefined,                 'strips unknown categories');
+  ok(p.body.scores.overall === 5 && p.body.scores.transport === 2, 'sends the real scores');
+
+  const after = Ratings.score(DEST_BY_ID['st-george']);
+  ok(after.rated === true && after.votes === 1, 'my new rating shows immediately, no refetch');
+  ok(after.mine !== null,                       'recognised as mine');
+
+  // withdrawing writes an empty row rather than deleting
+  await Ratings.clear('st-george');
+  const q = window.__posts[1];
+  ok(window.__posts.length === 2,                    'withdrawal issues a POST');
+  ok(JSON.stringify(q.body.scores) === '{}',          'withdrawal writes empty scores, never DELETE');
+  ok(Ratings.score(DEST_BY_ID['st-george']).rated === false, 'destination reads unrated again');
+
+  // reviews from other people
+  const revs = Ratings.reviewsFor('bandon-dunes');
+  ok(revs.length === 1 && revs[0].review === 'Best trip ever', 'surfaces other people’s reviews');
+
+  // failure must not break the page
+  window.fetch = async () => { throw new Error('network down'); };
+  Ratings._loaded = false; Ratings.online = false;
+  await Ratings.load();
+  ok(Ratings.online === false, 'a dead server leaves online=false instead of throwing');
+  ok(Ratings.score(DEST_BY_ID['bandon-dunes']) !== undefined, 'score() still returns after a failed load');
+
+  const fails = L.filter(l => l.startsWith('FAIL')).length;
+  L.push('');
+  L.push(fails ? fails + ' FAILURES' : 'all assertions passed');
+  document.getElementById('o').textContent = L.join('\n');
+})();
+</script></body>

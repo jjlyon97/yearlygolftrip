@@ -495,3 +495,16 @@ td .rank{font-family:var(--display);font-size:1.25rem;font-weight:700;color:var(
 }
 .more p{margin:0;color:var(--ink-soft)}
 #more-toggle{margin-bottom:1.2rem}
+
+/* ---------- reviews left by other travellers ---------- */
+.reviews{display:grid;gap:.7rem}
+.review{
+  margin:0;padding:.9rem 1.1rem;background:var(--card);
+  border:1px solid var(--line);border-left:3px solid var(--green-600);
+  border-radius:0 var(--radius-sm) var(--radius-sm) 0;
+}
+.review p{margin:0;font-size:.92rem;color:var(--ink-soft)}
+.review cite{
+  display:block;margin-top:.45rem;font-style:normal;
+  font-size:.76rem;color:var(--muted);letter-spacing:.03em;
+}

@@ -131,6 +131,31 @@ Myrtle Beach scoring high on Fun and low on Quality, or Bandon topping Fun
 while sitting near the bottom on Transport, is the whole point — a single
 combined score hides all of it.
 
+### Shared ratings (optional, off by default)
+
+`assets/js/config.js` holds a Supabase URL and anon key. Leave them blank and
+ratings stay in each visitor's browser. Fill them in and ratings become
+communal — **`SETUP-RATINGS.md` is the step-by-step**, and
+`supabase-setup.sql` is the schema and the Row Level Security policies.
+
+The design keeps every consumer synchronous: `Ratings.load()` does one fetch
+before the first render, and `score()` / `by()` / `reviewsFor()` read the
+cache. Only `set()` and `clear()` are async. Nothing else in the codebase had
+to change to support this.
+
+Failure is soft — an unreachable server logs a warning and falls back to local
+ratings rather than breaking the page. The Top Rated page shows which mode is
+live.
+
+Withdrawing a rating writes an **empty scores object** rather than issuing a
+DELETE. The table deliberately has no delete policy, so nobody holding the
+public anon key can wipe it.
+
+`tests/ratings.test.html` exercises the shared path against a stubbed server —
+averaging across multiple raters, partial rows, upsert behaviour, category
+whitelisting, withdrawal, and network failure. Open it in a browser; every line
+should read PASS. Run it after touching `Ratings`.
+
 ### Nothing is seeded
 
 Every destination starts **unrated**. There are no `seedScores`, no invented
@@ -252,7 +277,7 @@ Doing it by hand still works; the script just removes the step everyone forgets.
 
 ## Where a backend would be needed
 
-- **Real shared ratings** across all visitors (currently per-browser)
+- ~~Real shared ratings across all visitors~~ — built, see `SETUP-RATINGS.md`
 - **Accounts** so a trip follows you between devices
 - **Live tee-time availability** rather than linking out to each course
 - **Collaborative editing** so the group edits one itinerary together

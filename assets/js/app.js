@@ -128,23 +128,44 @@ function renderChrome(){
 /* ============================================================
    Ratings store
    ------------------------------------------------------------
-   No backend, so ratings live in this browser's localStorage.
-   Seed scores in data.js are sample content used to give the
-   leaderboard a starting shape — they are not real reviews.
-   ============================================================ */
-/* ============================================================
-   Ratings store
-   ------------------------------------------------------------
-   Nothing is seeded. Every destination starts unrated and fills
-   up as people score it, so a number on this site always came
-   from somebody actually rating it.
+   Two modes, decided by whether config.js has been filled in:
 
-   No backend yet, so "people" currently means this browser:
-   ratings live in localStorage and are not shared. Swapping in
-   a real API means changing `all()` and `set()` and nothing else.
+   LOCAL  (default) — ratings live in this browser only.
+   SHARED (configured) — ratings live in Supabase and every
+          visitor sees the same averages.
+
+   Everything above this line is unchanged either way: all the
+   cards, filters, chips and leaderboards go through
+   Ratings.score(), which is synchronous. The network happens
+   once, in Ratings.load(), before the first render.
    ============================================================ */
 const RATINGS_KEY     = 'annualgolftrip.ratings.v3';
 const RATINGS_KEY_OLD = 'annualgolftrip.ratings.v2';
+const RATER_KEY       = 'annualgolftrip.raterId';
+
+const SB = (typeof window !== 'undefined' && window.SUPABASE_CONFIG) || { url:'', anonKey:'' };
+const SHARED = Boolean(SB.url && SB.anonKey);
+
+/** Stable random id for this browser, so a rating can be edited later. */
+function raterId(){
+  try {
+    let id = localStorage.getItem(RATER_KEY);
+    if(!id){
+      id = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(36).slice(2))
+             .replace(/-/g, '');
+      localStorage.setItem(RATER_KEY, id);
+    }
+    return id;
+  } catch { return 'anon' + Math.random().toString(36).slice(2, 12); }
+}
+
+function sbHeaders(extra = {}){
+  return Object.assign({
+    'apikey': SB.anonKey,
+    'Authorization': 'Bearer ' + SB.anonKey,
+    'Content-Type': 'application/json'
+  }, extra);
+}
 
 /** Mean of whatever category scores are present, or null. */
 function meanScore(scores, keys = CATEGORY_KEYS){
@@ -153,7 +174,14 @@ function meanScore(scores, keys = CATEGORY_KEYS){
 }
 
 const Ratings = {
-  all(){
+  shared: SHARED,
+  online: false,      // true once a shared fetch has actually succeeded
+  _rows: [],          // every rating row, shared mode only
+  _mine: {},          // this browser's ratings, both modes
+  _loaded: false,
+
+  /* ---------- local copy ---------- */
+  _readLocal(){
     try {
       const v3 = JSON.parse(localStorage.getItem(RATINGS_KEY));
       if(v3) return v3;
@@ -162,24 +190,52 @@ const Ratings = {
       return {};
     } catch { return {}; }
   },
-  get(id){ return this.all()[id] || null; },
-
-  /** scores is a partial map of category key -> 1..5 */
-  set(id, scores, review){
-    const all = this.all();
-    const clean = {};
-    CATEGORY_KEYS.forEach(k => {
-      const v = Number(scores[k]);
-      if(v >= 1 && v <= 5) clean[k] = v;
-    });
-    all[id] = { scores:clean, review:String(review || '').slice(0, 400), ts:Date.now() };
-    localStorage.setItem(RATINGS_KEY, JSON.stringify(all));
-    return all[id];
+  _writeLocal(){
+    try { localStorage.setItem(RATINGS_KEY, JSON.stringify(this._mine)); } catch {}
   },
-  clear(id){
-    const all = this.all();
-    delete all[id];
-    localStorage.setItem(RATINGS_KEY, JSON.stringify(all));
+
+  /**
+   * Called once, before the first render. Safe to call repeatedly.
+   * If the network fails the site falls back to local ratings
+   * rather than showing nothing.
+   */
+  async load(){
+    if(this._loaded) return;
+    this._mine = this._readLocal();
+    if(SHARED){
+      try {
+        const res = await fetch(
+          SB.url + '/rest/v1/ratings?select=destination_id,rater_id,scores,review,updated_at',
+          { headers: sbHeaders() });
+        if(res.ok){
+          this._rows = await res.json();
+          this.online = true;
+        } else {
+          console.warn('[ratings] server said', res.status, '— falling back to local');
+        }
+      } catch (e){
+        console.warn('[ratings] offline, using local ratings only', e);
+      }
+    }
+    this._loaded = true;
+  },
+
+  /* ---------- reads ---------- */
+  all(){ return this._mine; },
+  get(id){ return this._mine[id] || null; },
+
+  /** Every rating for a destination — everyone's in shared mode, yours otherwise. */
+  _rowsFor(id){
+    if(SHARED && this.online) return this._rows.filter(r => r.destination_id === id);
+    const mine = this._mine[id];
+    return mine ? [{ scores: mine.scores, review: mine.review }] : [];
+  },
+
+  /** Reviews left by other people, newest first. */
+  reviewsFor(id){
+    return this._rowsFor(id)
+      .filter(r => r.review && r.rater_id !== raterId())
+      .sort((a, b) => String(b.updated_at || '').localeCompare(String(a.updated_at || '')));
   },
 
   /**
@@ -188,27 +244,81 @@ const Ratings = {
    * invitation rather than a fake number.
    */
   score(dest){
-    const mine = this.get(dest.id);
+    const rows = this._rowsFor(dest.id);
     const categories = {};
-    CATEGORY_KEYS.forEach(k => categories[k] = mine?.scores?.[k] ?? null);
+    CATEGORY_KEYS.forEach(k => {
+      const vals = rows.map(r => Number(r.scores?.[k])).filter(v => v > 0);
+      categories[k] = vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
+    });
     const rated = CATEGORY_KEYS.some(k => categories[k] != null);
     return {
       categories,
       rated,
-      /* headline: the Overall trip score, or the mean of what was rated */
       value: rated ? (categories.overall ?? meanScore(categories)) : null,
       mean:  meanScore(categories, DETAIL_KEYS),
-      votes: mine ? 1 : 0,
-      mine
+      votes: rows.filter(r => meanScore(r.scores) != null).length,
+      mine:  this._mine[dest.id] || null
     };
   },
 
-  /** Score for a single category, or null when nobody has rated it. */
-  by(dest, key){
-    return this.score(dest).categories[key] ?? null;
+  by(dest, key){ return this.score(dest).categories[key] ?? null; },
+  count(){ return Object.keys(this._mine).length; },
+
+  /* ---------- writes ---------- */
+  /** scores is a partial map of category key -> 1..5 */
+  async set(id, scores, review){
+    const clean = {};
+    CATEGORY_KEYS.forEach(k => {
+      const v = Number(scores[k]);
+      if(v >= 1 && v <= 5) clean[k] = v;
+    });
+    const row = { scores:clean, review:String(review || '').slice(0, 400), ts:Date.now() };
+    this._mine[id] = row;
+    this._writeLocal();
+    this._upsertLocalRow(id, clean, row.review);
+    await this._push(id, clean, row.review);
+    return row;
   },
 
-  count(){ return Object.keys(this.all()).length; }
+  /**
+   * Withdraw a rating. In shared mode this writes an empty scores
+   * object rather than deleting: the table has no delete policy,
+   * which is what stops anyone with the public key wiping it.
+   */
+  async clear(id){
+    delete this._mine[id];
+    this._writeLocal();
+    this._upsertLocalRow(id, {}, '');
+    await this._push(id, {}, '');
+  },
+
+  /** Keep the in-memory copy in step so the UI updates without a refetch. */
+  _upsertLocalRow(id, scores, review){
+    if(!SHARED) return;
+    const me = raterId();
+    const existing = this._rows.find(r => r.destination_id === id && r.rater_id === me);
+    if(existing){ existing.scores = scores; existing.review = review; }
+    else this._rows.push({ destination_id:id, rater_id:me, scores, review, updated_at:new Date().toISOString() });
+  },
+
+  async _push(id, scores, review){
+    if(!SHARED || !this.online) return;
+    try {
+      const res = await fetch(SB.url + '/rest/v1/ratings', {
+        method: 'POST',
+        headers: sbHeaders({ 'Prefer': 'resolution=merge-duplicates,return=minimal' }),
+        body: JSON.stringify({
+          destination_id: id,
+          rater_id: raterId(),
+          scores,
+          review: review || null
+        })
+      });
+      if(!res.ok) console.warn('[ratings] save failed', res.status, await res.text());
+    } catch (e){
+      console.warn('[ratings] save failed, kept locally', e);
+    }
+  }
 };
 
 /* ---------- star rendering ---------- */

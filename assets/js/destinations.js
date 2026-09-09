@@ -158,12 +158,26 @@ function renderDetail(id){
         <h3>Where to stay</h3>
         <div style="margin-bottom:1.8rem">${lodgingRows}</div>
 
+        ${(() => {
+          const revs = Ratings.reviewsFor(d.id);
+          if(!revs.length) return '';
+          return `
+          <h3>What other people said</h3>
+          <div class="reviews" style="margin-bottom:1.8rem">
+            ${revs.slice(0, 6).map(r => `
+              <blockquote class="review">
+                <p>${esc(r.review)}</p>
+                ${r.updated_at ? `<cite>${new Date(r.updated_at).toLocaleDateString()}</cite>` : ''}
+              </blockquote>`).join('')}
+          </div>`;
+        })()}
+
         <!-- rating -->
         <div class="panel panel-tight" style="background:var(--cream)">
           <h3 style="margin-bottom:.2em">Rate ${esc(d.name)}</h3>
           <p class="small muted" style="margin-bottom:1.1rem">
-            ${mine
-              ? 'You have rated this. Change anything below and save again.'
+            ${s.votes
+              ? `${s.votes} ${s.votes === 1 ? 'rating' : 'ratings'} so far.${mine ? ' Yours is one of them — change anything below and save again.' : ''}`
               : 'Nobody has rated this yet. Score the categories you have an opinion on and skip the rest.'}
           </p>
 
@@ -214,18 +228,24 @@ function renderDetail(id){
     });
   });
 
-  $('#save-rating').addEventListener('click', () => {
+  $('#save-rating').addEventListener('click', async (e) => {
     if(!Object.keys(picked).length){ toast('Rate at least one category first'); return; }
-    Ratings.set(d.id, picked, $('#rate-note').value);
+    const btn = e.currentTarget;
+    btn.disabled = true;
+    btn.textContent = 'Saving…';
+    await Ratings.set(d.id, picked, $('#rate-note').value);
     const n = Object.keys(picked).length;
-    toast(`Saved — ${n} categor${n === 1 ? 'y' : 'ies'} rated`);
+    toast(Ratings.shared && Ratings.online
+      ? `Saved and shared — ${n} categor${n === 1 ? 'y' : 'ies'} rated`
+      : `Saved — ${n} categor${n === 1 ? 'y' : 'ies'} rated`);
     applyFilters();
     renderDetail(d.id);
   });
 
   const clearBtn = $('#clear-rating');
-  if(clearBtn) clearBtn.addEventListener('click', () => {
-    Ratings.clear(d.id);
+  if(clearBtn) clearBtn.addEventListener('click', async (e) => {
+    e.currentTarget.disabled = true;
+    await Ratings.clear(d.id);
     toast('Rating removed');
     applyFilters();
     renderDetail(d.id);
@@ -252,7 +272,9 @@ function renderDetail(id){
 }
 
 /* ---------- boot ---------- */
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  await Ratings.load();
+
   // region options
   $('#f-region').innerHTML = '<option value="">Anywhere in the US</option>' +
     US_REGIONS.map(r => `<option value="${r}">${r}</option>`).join('');
