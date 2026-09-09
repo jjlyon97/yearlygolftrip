@@ -145,8 +145,8 @@ const RATINGS_KEY     = 'annualgolftrip.ratings.v2';
 const RATINGS_KEY_OLD = 'annualgolftrip.ratings.v1';
 
 /** Mean of whatever category scores are present, or null. */
-function meanScore(scores){
-  const vals = CATEGORY_KEYS.map(k => Number(scores?.[k])).filter(v => v > 0);
+function meanScore(scores, keys = CATEGORY_KEYS){
+  const vals = keys.map(k => Number(scores?.[k])).filter(v => v > 0);
   return vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
 }
 
@@ -204,19 +204,22 @@ const Ratings = {
     });
     return {
       categories,
-      value: meanScore(categories),
+      /* headline = the Overall trip score people actually give it */
+      value: categories.overall,
+      /* mean of the detail categories, for anywhere that wants an average */
+      mean: meanScore(categories, DETAIL_KEYS),
       votes: mine ? dest.seedVotes + 1 : dest.seedVotes,
       mine,
-      /** community-only score, for showing alongside the blend */
-      community: meanScore(dest.seedScores),
+      /** community-only headline, for showing alongside the blend */
+      community: dest.seedScores.overall,
       blended: !!mine
     };
   },
 
-  /** Score for one category, or the overall mean when key is 'overall'. */
+  /** Score for a single category. */
   by(dest, key){
     const s = this.score(dest);
-    return key && key !== 'overall' ? s.categories[key] : s.value;
+    return s.categories[key] ?? s.value;
   },
 
   count(){ return Object.keys(this.all()).length; }
@@ -253,7 +256,7 @@ function tierFromCourses(dest, courseNames){
 
 /** The category a destination scores highest in — its selling point. */
 function bestCategory(scored){
-  const key = CATEGORY_KEYS.reduce((a, b) =>
+  const key = DETAIL_KEYS.reduce((a, b) =>
     scored.categories[b] > scored.categories[a] ? b : a);
   return CATEGORY_BY_KEY[key];
 }

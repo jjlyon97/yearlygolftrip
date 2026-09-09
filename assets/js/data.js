@@ -18,17 +18,24 @@
    Confirm access policy and rates on the course's own site.
    ============================================================ */
 
-/* ---------- what people rate ---------- */
+/* ---------- what people rate ----------
+   `overall` is the headline score, rated directly rather than averaged from
+   the rest — "was this a good trip?" is its own judgement, not the mean of
+   eight sub-scores. The others explain it. */
 const RATING_CATEGORIES = [
-  {key:'quality',   label:'Course quality',     short:'Quality',    hint:'How good is the golf itself — the design, the holes you remember?'},
-  {key:'depth',     label:'Course depth',       short:'Depth',      hint:'Is there enough good golf to fill the trip, or one course and filler?'},
-  {key:'condition', label:'Conditioning',       short:'Condition',  hint:'Turf, greens, bunkers — how well is it actually presented?'},
-  {key:'lodging',   label:'Lodging & amenities',short:'Lodging',    hint:'Rooms, food, clubhouse, practice ground, caddies.'},
-  {key:'value',     label:'Value',              short:'Value',      hint:'Was it worth what you paid, whatever the price bracket?'},
-  {key:'offcourse', label:'Off-course',         short:'Off-course', hint:'The town, the food, and whether non-golfers had a good time.'}
+  {key:'overall',   label:'Overall trip',          short:'Overall',   hint:'All in — would you tell a mate to go?'},
+  {key:'fun',       label:'Fun & enjoyment',       short:'Fun',       hint:'How much fun was the golf, regardless of how hard or famous it is?'},
+  {key:'quality',   label:'Course quality',        short:'Quality',   hint:'The design — the holes you actually remember.'},
+  {key:'depth',     label:'Course depth',          short:'Depth',     hint:'Enough good golf to fill the trip, or one course and filler?'},
+  {key:'transport', label:'Getting there & around',short:'Transport', hint:'Flights, drives, and how close the courses are to each other.'},
+  {key:'lodging',   label:'Lodging & amenities',   short:'Lodging',   hint:'Rooms, food, clubhouse, practice ground, caddies.'},
+  {key:'value',     label:'Value',                 short:'Value',     hint:'Worth what you paid, whatever the price bracket?'},
+  {key:'offcourse', label:'Off-course',            short:'Off-course',hint:'The town, the food, and whether non-golfers had a good time.'}
 ];
-const CATEGORY_KEYS = RATING_CATEGORIES.map(c => c.key);
-const CATEGORY_BY_KEY = Object.fromEntries(RATING_CATEGORIES.map(c => [c.key, c]));
+const CATEGORY_KEYS  = RATING_CATEGORIES.map(c => c.key);
+const CATEGORY_BY_KEY= Object.fromEntries(RATING_CATEGORIES.map(c => [c.key, c]));
+/* everything except the headline — used for "best for X" and comparisons */
+const DETAIL_KEYS    = CATEGORY_KEYS.filter(k => k !== 'overall');
 
 const US_REGIONS = ['West', 'Southwest', 'Midwest', 'Southeast', 'Northeast', 'Hawaii'];
 
@@ -43,7 +50,7 @@ const DESTINATIONS = [
     airport:'North Bend (OTH), 30 min · Eugene (EUG), 2h45',
     travelEase:4, travelNote:'North Bend is tiny and weather-prone. Most people fly to Eugene or Portland and drive — budget most of a day each way.',
     priceTier:3, editorScore:9.7, seedVotes:412,
-    seedScores:{quality:4.9, depth:4.8, condition:4.7, lodging:4.2, value:3.7, offcourse:3.0},
+    seedScores:{overall:4.8, fun:4.7, quality:4.9, depth:4.8, transport:2.9, lodging:4.2, value:3.7, offcourse:3.0},
     access:'Resort — public, guests get priority tee times',
     goodFor:['buddies', 'architecture'],
     site:'https://bandondunesgolf.com',
@@ -72,7 +79,7 @@ const DESTINATIONS = [
     airport:'Monterey (MRY), 20 min · San Jose (SJC), 1h20',
     travelEase:2, travelNote:'Monterey has limited service; San Jose is 80 minutes and much better connected.',
     priceTier:4, editorScore:9.2, seedVotes:531,
-    seedScores:{quality:4.7, depth:4.2, condition:4.6, lodging:4.5, value:2.9, offcourse:4.4},
+    seedScores:{overall:4.6, fun:4.4, quality:4.7, depth:4.2, transport:4.2, lodging:4.5, value:2.9, offcourse:4.4},
     access:'Pebble tee times require a resort stay for guaranteed access',
     goodFor:['buddies', 'couples', 'architecture'],
     site:'https://www.pebblebeach.com',
@@ -100,7 +107,7 @@ const DESTINATIONS = [
     airport:'Redmond (RDM), 20 min · Portland (PDX), 3h drive',
     travelEase:2, travelNote:'Redmond is a small but reliable regional airport 20 minutes from Bend.',
     priceTier:2, editorScore:8.3, seedVotes:132,
-    seedScores:{quality:4.1, depth:4.0, condition:4.3, lodging:4.2, value:4.2, offcourse:4.5},
+    seedScores:{overall:4.2, fun:4.3, quality:4.1, depth:4.0, transport:4.3, lodging:4.2, value:4.2, offcourse:4.5},
     access:'Mix of public and resort-guest courses',
     goodFor:['buddies', 'couples', 'families'],
     site:'https://www.visitbend.com',
@@ -128,7 +135,7 @@ const DESTINATIONS = [
     airport:'Palm Springs (PSP), 20 min · LAX, 2h30 drive',
     travelEase:1, travelNote:'Direct into Palm Springs, or drive out from LA in about two and a half hours.',
     priceTier:2, editorScore:8.2, seedVotes:380,
-    seedScores:{quality:4.0, depth:4.5, condition:4.2, lodging:4.1, value:4.3, offcourse:4.2},
+    seedScores:{overall:4.2, fun:4.3, quality:4.0, depth:4.5, transport:4.7, lodging:4.1, value:4.3, offcourse:4.2},
     access:'Public and resort daily-fee throughout',
     goodFor:['buddies', 'biggroup', 'couples'],
     site:'https://www.visitgreaterpalmsprings.com',
@@ -159,7 +166,7 @@ const DESTINATIONS = [
     airport:'Phoenix Sky Harbor (PHX), 25 min',
     travelEase:1, travelNote:'Phoenix is a major hub with direct flights from almost everywhere, 25 minutes from the courses.',
     priceTier:2, editorScore:8.4, seedVotes:449,
-    seedScores:{quality:4.1, depth:4.7, condition:4.4, lodging:4.4, value:3.9, offcourse:4.6},
+    seedScores:{overall:4.4, fun:4.5, quality:4.1, depth:4.7, transport:4.8, lodging:4.4, value:3.9, offcourse:4.6},
     access:'Almost entirely public / resort daily-fee',
     goodFor:['buddies', 'biggroup'],
     site:'https://www.experiencescottsdale.com',
@@ -187,7 +194,7 @@ const DESTINATIONS = [
     airport:'Harry Reid (LAS), 15 min to most courses',
     travelEase:1, travelNote:'One of the best-connected airports in the country, 15 minutes from most tee times.',
     priceTier:3, editorScore:8.0, seedVotes:410,
-    seedScores:{quality:4.0, depth:4.1, condition:4.5, lodging:4.4, value:3.2, offcourse:4.8},
+    seedScores:{overall:4.1, fun:4.4, quality:4.0, depth:4.1, transport:4.6, lodging:4.4, value:3.2, offcourse:4.8},
     access:'Shadow Creek and Wynn require a linked resort stay',
     goodFor:['buddies', 'biggroup', 'couples'],
     site:'https://www.visitlasvegas.com',
@@ -218,7 +225,7 @@ const DESTINATIONS = [
     airport:'Central Wisconsin (CWA), 45 min · Madison (MSN), 1h45',
     travelEase:3, travelNote:'Central Wisconsin is a small regional airport; most people fly to Madison or Milwaukee and drive two hours.',
     priceTier:2, editorScore:9.1, seedVotes:158,
-    seedScores:{quality:4.7, depth:4.5, condition:4.6, lodging:4.2, value:4.4, offcourse:3.3},
+    seedScores:{overall:4.6, fun:4.7, quality:4.7, depth:4.5, transport:3.4, lodging:4.2, value:4.4, offcourse:3.3},
     access:'Resort — public; The Lido is guest-access limited',
     goodFor:['buddies', 'architecture'],
     site:'https://www.sandvalley.com',
@@ -245,7 +252,7 @@ const DESTINATIONS = [
     airport:'Milwaukee (MKE), 1h · Chicago O’Hare (ORD), 2h30',
     travelEase:2, travelNote:'Milwaukee is an easy hour away; Chicago adds another ninety minutes.',
     priceTier:3, editorScore:8.7, seedVotes:221,
-    seedScores:{quality:4.6, depth:4.2, condition:4.8, lodging:4.6, value:3.5, offcourse:3.8},
+    seedScores:{overall:4.5, fun:4.0, quality:4.6, depth:4.2, transport:4.0, lodging:4.6, value:3.5, offcourse:3.8},
     access:'Resort — public, guests get preferred rates',
     goodFor:['buddies', 'architecture', 'couples'],
     site:'https://www.destinationkohler.com',
@@ -272,7 +279,7 @@ const DESTINATIONS = [
     airport:'Traverse City (TVC), 30 min · Grand Rapids (GRR), 2h30',
     travelEase:3, travelNote:'Traverse City is easy in summer, thinner the rest of the year — and the courses are spread over a two-hour radius.',
     priceTier:2, editorScore:8.5, seedVotes:164,
-    seedScores:{quality:4.4, depth:4.3, condition:4.3, lodging:3.9, value:4.4, offcourse:4.3},
+    seedScores:{overall:4.3, fun:4.4, quality:4.4, depth:4.3, transport:3.5, lodging:3.9, value:4.4, offcourse:4.3},
     access:'All listed courses are public / resort daily-fee',
     goodFor:['buddies', 'families', 'couples'],
     site:'https://www.traversecity.com',
@@ -301,7 +308,7 @@ const DESTINATIONS = [
     airport:'North Platte (LBF) · Valentine (VTN) · Denver (DEN), 5h drive',
     travelEase:4, travelNote:'There is no easy way in. Fly to North Platte or Valentine on a small plane, or drive five hours from Denver.',
     priceTier:2, editorScore:9.0, seedVotes:84,
-    seedScores:{quality:4.8, depth:4.0, condition:4.4, lodging:3.6, value:4.3, offcourse:2.6},
+    seedScores:{overall:4.6, fun:4.5, quality:4.8, depth:4.0, transport:2.3, lodging:3.6, value:4.3, offcourse:2.6},
     access:'Sand Hills GC and CapRock are PRIVATE — Prairie Club is public',
     goodFor:['buddies', 'architecture'],
     site:'https://theprairieclub.com',
@@ -331,7 +338,7 @@ const DESTINATIONS = [
     airport:'Raleigh-Durham (RDU), 1h15 · Fayetteville (FAY), 50 min',
     travelEase:2, travelNote:'Raleigh-Durham is a good airport and a straightforward 75-minute drive.',
     priceTier:3, editorScore:9.3, seedVotes:377,
-    seedScores:{quality:4.7, depth:4.9, condition:4.6, lodging:4.4, value:4.0, offcourse:4.1},
+    seedScores:{overall:4.7, fun:4.6, quality:4.7, depth:4.9, transport:4.4, lodging:4.4, value:4.0, offcourse:4.1},
     access:'Resort — public, stay-and-play packages',
     goodFor:['buddies', 'architecture', 'couples'],
     site:'https://www.pinehurst.com',
@@ -360,7 +367,7 @@ const DESTINATIONS = [
     airport:'Charleston (CHS), 55 min',
     travelEase:2, travelNote:'Charleston is well connected and just under an hour from the island.',
     priceTier:3, editorScore:8.8, seedVotes:262,
-    seedScores:{quality:4.5, depth:4.1, condition:4.6, lodging:4.6, value:3.4, offcourse:4.5},
+    seedScores:{overall:4.4, fun:4.0, quality:4.5, depth:4.1, transport:4.1, lodging:4.6, value:3.4, offcourse:4.5},
     access:'Ocean Course prioritises resort guests',
     goodFor:['families', 'couples', 'buddies'],
     site:'https://kiawahresort.com',
@@ -388,7 +395,7 @@ const DESTINATIONS = [
     airport:'Myrtle Beach (MYR), 20 min · Charleston (CHS), 2h',
     travelEase:1, travelNote:'Myrtle Beach has plenty of seasonal direct service and the courses start 20 minutes away.',
     priceTier:1, editorScore:8.0, seedVotes:520,
-    seedScores:{quality:3.8, depth:4.8, condition:3.7, lodging:3.7, value:4.8, offcourse:4.3},
+    seedScores:{overall:4.1, fun:4.6, quality:3.8, depth:4.8, transport:4.4, lodging:3.7, value:4.8, offcourse:4.3},
     access:'Entirely public — book through a package operator',
     goodFor:['biggroup', 'buddies'],
     site:'https://www.visitmyrtlebeach.com',
@@ -417,7 +424,7 @@ const DESTINATIONS = [
     airport:'Hilton Head (HHH), 15 min · Savannah (SAV), 45 min',
     travelEase:2, travelNote:'Hilton Head’s own airport is small; Savannah is 45 minutes and far cheaper.',
     priceTier:2, editorScore:8.4, seedVotes:298,
-    seedScores:{quality:4.3, depth:4.0, condition:4.4, lodging:4.4, value:4.0, offcourse:4.6},
+    seedScores:{overall:4.3, fun:4.3, quality:4.3, depth:4.0, transport:4.3, lodging:4.4, value:4.0, offcourse:4.6},
     access:'Resort daily-fee; Harbour Town books well ahead',
     goodFor:['families', 'couples', 'biggroup'],
     site:'https://www.seapines.com',
@@ -445,7 +452,7 @@ const DESTINATIONS = [
     airport:'Brunswick (BQK), 25 min · Jacksonville (JAX), 1h20',
     travelEase:3, travelNote:'Brunswick is small, so most people fly into Jacksonville and drive 80 minutes.',
     priceTier:3, editorScore:8.7, seedVotes:173,
-    seedScores:{quality:4.6, depth:3.6, condition:4.9, lodging:4.8, value:3.1, offcourse:4.4},
+    seedScores:{overall:4.5, fun:4.3, quality:4.6, depth:3.6, transport:3.8, lodging:4.8, value:3.1, offcourse:4.4},
     access:'Resort guests and members',
     goodFor:['couples', 'families'],
     site:'https://www.seaisland.com',
@@ -471,7 +478,7 @@ const DESTINATIONS = [
     airport:'Tampa (TPA), 1h20 · Orlando (MCO), 1h30',
     travelEase:2, travelNote:'Tampa is a major hub, then an 80-minute drive into empty cattle country.',
     priceTier:2, editorScore:8.9, seedVotes:203,
-    seedScores:{quality:4.6, depth:4.0, condition:4.4, lodging:4.2, value:4.3, offcourse:2.8},
+    seedScores:{overall:4.5, fun:4.5, quality:4.6, depth:4.0, transport:3.7, lodging:4.2, value:4.3, offcourse:2.8},
     access:'Resort — public, best rates for overnight guests',
     goodFor:['buddies', 'architecture'],
     site:'https://streamsongresort.com',
@@ -497,7 +504,7 @@ const DESTINATIONS = [
     airport:'Orlando (MCO), 20–40 min',
     travelEase:1, travelNote:'Cheap direct flights from nearly anywhere, and the courses are 20 to 40 minutes out.',
     priceTier:2, editorScore:7.9, seedVotes:356,
-    seedScores:{quality:3.7, depth:4.6, condition:4.1, lodging:4.2, value:4.1, offcourse:4.7},
+    seedScores:{overall:4.0, fun:4.2, quality:3.7, depth:4.6, transport:4.5, lodging:4.2, value:4.1, offcourse:4.7},
     access:'Mostly public / resort; Bay Hill needs a lodge stay',
     goodFor:['families', 'biggroup'],
     site:'https://www.visitorlando.com',
@@ -525,7 +532,7 @@ const DESTINATIONS = [
     airport:'Birmingham (BHM) · Montgomery (MGM) · Atlanta (ATL), 2h',
     travelEase:2, travelNote:'Birmingham and Montgomery are easy enough, Atlanta is two hours — but the trail itself means an hour of driving between sites.',
     priceTier:1, editorScore:7.8, seedVotes:187,
-    seedScores:{quality:3.9, depth:4.7, condition:4.0, lodging:3.8, value:4.9, offcourse:3.5},
+    seedScores:{overall:4.0, fun:4.1, quality:3.9, depth:4.7, transport:3.3, lodging:3.8, value:4.9, offcourse:3.5},
     access:'Fully public — trail card gets you on everything',
     goodFor:['biggroup', 'buddies'],
     site:'https://www.rtjgolf.com',
@@ -556,7 +563,7 @@ const DESTINATIONS = [
     airport:'JFK, 45 min · LaGuardia (LGA), 1h',
     travelEase:1, travelNote:'JFK and LaGuardia put you 45 minutes from Bethpage. Nothing on this list is easier to reach.',
     priceTier:1, editorScore:8.6, seedVotes:226,
-    seedScores:{quality:4.6, depth:4.2, condition:4.0, lodging:3.5, value:4.8, offcourse:4.5},
+    seedScores:{overall:4.4, fun:4.2, quality:4.6, depth:4.2, transport:4.2, lodging:3.5, value:4.8, offcourse:4.5},
     access:'Bethpage via NY State reservation system or the walk-up line',
     goodFor:['buddies', 'architecture'],
     site:'https://parks.ny.gov',
@@ -588,7 +595,7 @@ const DESTINATIONS = [
     airport:'Kahului (OGG), 45 min to Kapalua',
     travelEase:3, travelNote:'Kahului takes direct flights from the West Coast, but it is a five-hour flight minimum and much longer from the East.',
     priceTier:3, editorScore:8.8, seedVotes:241,
-    seedScores:{quality:4.4, depth:3.9, condition:4.4, lodging:4.6, value:3.3, offcourse:4.9},
+    seedScores:{overall:4.5, fun:4.5, quality:4.4, depth:3.9, transport:3.6, lodging:4.6, value:3.3, offcourse:4.9},
     access:'Resort daily-fee; guest rates are meaningfully lower',
     goodFor:['couples', 'families'],
     site:'https://www.gohawaii.com/islands/maui',

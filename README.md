@@ -85,33 +85,51 @@ It surfaces as a pill on every destination card, a meter and panel in the
 destination detail, a row in each trip's sidebar, an "Easiest to reach" sort
 option, and question five of the matcher.
 
-### Ratings — six categories
+### Ratings — eight categories
 
-People rate a destination across six axes rather than giving one blunt star
+People rate a destination across eight axes rather than giving one blunt star
 score, because "is it good?" has different answers depending on what you want:
 
 | Key | Label | What it means |
 |---|---|---|
+| `overall` | Overall trip | All in — would you tell a mate to go? |
+| `fun` | Fun & enjoyment | How much fun the golf was, regardless of difficulty or prestige |
 | `quality` | Course quality | The design — the holes you actually remember |
 | `depth` | Course depth | Enough good golf for a whole trip, or one course and filler |
-| `condition` | Conditioning | Turf, greens, presentation |
+| `transport` | Getting there & around | Flights, drives, and how close the courses sit to each other |
 | `lodging` | Lodging & amenities | Rooms, food, clubhouse, practice, caddies |
 | `value` | Value | Worth the money, whatever the price bracket |
 | `offcourse` | Off-course | The town, the food, whether non-golfers enjoyed it |
 
+**`overall` is the headline score and is rated directly**, not averaged from the
+other seven — "was this a good trip?" is its own judgement, and a mean would
+let a weak Off-course score drag down somewhere nobody minds. `DETAIL_KEYS` is
+every category except `overall`, used for the "best for X" badge and
+comparisons where the headline would be circular.
+
 Categories are defined once in `RATING_CATEGORIES` (`data.js`) and everything
-else — the rating widget, the filters, the leaderboard columns, the breakdown
-bars — is generated from that array. Add a seventh category there and it
-appears everywhere; you only have to add the matching `seedScores` key to each
-destination.
+else — the rating widget, the filters, the leaderboard chips and columns, the
+breakdown bars — generates from that array. Add or remove one there and it
+propagates; you only have to add the matching `seedScores` key to each of the
+twenty destinations.
 
 Rating is **partial by design**: score only the categories you have an opinion
-on. Overall is the mean of whatever has a value.
+on. Unrated categories show the community number untouched.
 
-**Why filtering by category matters:** the rankings genuinely diverge. Value is
-led by the RTJ Trail and Long Island; Course quality by Bandon and the Nebraska
-Sandhills; Lodging by Sea Island; Off-course by Maui and Las Vegas. A single
-combined score would hide all of that.
+**Why filtering by category matters:** the rankings genuinely diverge.
+
+| Ranked by | Top three |
+|---|---|
+| Overall trip | Bandon Dunes, Pinehurst, Monterey |
+| Fun & enjoyment | Bandon Dunes, Sand Valley, Pinehurst |
+| Getting there & around | Scottsdale, Palm Springs, Las Vegas |
+| Value | RTJ Trail, Long Island, Myrtle Beach |
+| Lodging & amenities | Sea Island, Kiawah, Maui |
+| Off-course | Maui, Las Vegas, Orlando |
+
+Myrtle Beach scoring high on Fun and low on Quality, or Bandon topping Fun
+while sitting near the bottom on Transport, is the whole point — a single
+combined score hides all of it.
 
 ### The 25% weighting
 
@@ -134,7 +152,7 @@ show the community number untouched. If real ratings ever arrive from a
 backend, delete `MY_WEIGHT` and go back to honest vote-count averaging.
 
 A one-time migration reads the old single-score `…ratings.v1` format and copies
-that value into all six categories.
+that value into all rated categories.
 
 ### Sharing### Sharing
 The builder packs the entire itinerary into the URL hash as base64url JSON

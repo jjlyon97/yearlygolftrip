@@ -22,7 +22,7 @@
 <meta name="twitter:description" content="The golf travel leaderboard — destinations ranked by community rating, including the ones you have rated yourself.">
 <meta name="twitter:image" content="https://yearlygolftrip.netlify.app/assets/og-image.jpg">
 
-<link rel="stylesheet" href="assets/css/style.css?v=13">
+<link rel="stylesheet" href="assets/css/style.css?v=16">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>⛳</text></svg>">
 </head>
 <body>
@@ -33,7 +33,7 @@
     <div class="wrap">
       <p class="eyebrow">The leaderboard</p>
       <h1 style="max-width:16ch">Top rated destinations</h1>
-      <p class="lede">Rank all twenty by whichever category actually matters to you — the golf, the conditioning, the value, or the bit that keeps non-golfers happy. Anything you rate is blended into your view of the table.</p>
+      <p class="lede">Rank all twenty by whichever category actually matters to you — the golf, the fun, the travel, the value, or the bit that keeps non-golfers happy. Anything you rate is blended into your view of the table.</p>
     </div>
   </section>
 
@@ -82,8 +82,8 @@
 
 <footer id="site-footer"></footer>
 
-<script src="assets/js/data.js?v=13"></script>
-<script src="assets/js/app.js?v=13"></script>
+<script src="assets/js/data.js?v=16"></script>
+<script src="assets/js/app.js?v=16"></script>
 <script>
 let rankKey = 'overall';
 
@@ -91,15 +91,12 @@ function ranked(){
   return DESTINATIONS
     .map(d => ({ d, s:Ratings.score(d) }))
     .sort((a, b) => {
-      const av = rankKey === 'overall' ? a.s.value : a.s.categories[rankKey];
-      const bv = rankKey === 'overall' ? b.s.value : b.s.categories[rankKey];
-      return bv - av || b.d.editorScore - a.d.editorScore;
+      return b.s.categories[rankKey] - a.s.categories[rankKey]
+          || b.d.editorScore - a.d.editorScore;
     });
 }
 
-function metricOf(r){
-  return rankKey === 'overall' ? r.s.value : r.s.categories[rankKey];
-}
+function metricOf(r){ return r.s.categories[rankKey]; }
 
 /** Compact inline bars so you can see WHY something ranks where it does. */
 function miniBars(r){
@@ -113,7 +110,7 @@ function miniBars(r){
 
 function render(){
   const rows = ranked();
-  const label = rankKey === 'overall' ? 'Overall' : CATEGORY_BY_KEY[rankKey].label;
+  const label = CATEGORY_BY_KEY[rankKey].label;
   $('#th-metric').textContent = label;
 
   $('#podium').innerHTML = rows.slice(0, 3).map((r, i) =>
@@ -132,7 +129,7 @@ function render(){
       <td>${miniBars(r)}</td>
       <td>${PRICE_LABEL[r.d.priceTier]}</td>
       <td>${r.s.mine
-            ? `<b>${(meanScore(r.s.mine.scores) || 0).toFixed(1)}</b>`
+            ? `<b>${(r.s.mine.scores.overall || meanScore(r.s.mine.scores) || 0).toFixed(1)}</b>`
             : `<a class="small" href="destinations.html#${r.d.id}">Rate</a>`}</td>
     </tr>`;
   }).join('');
@@ -143,7 +140,7 @@ function render(){
     .sort((a, b) => b.r.ts - a.r.ts);
 
   $('#my-ratings').innerHTML = mine.length ? mine.map(x => {
-    const avg = meanScore(x.r.scores);
+    const avg = x.r.scores.overall || meanScore(x.r.scores);
     return `
     <div class="panel panel-tight" style="margin-bottom:.9rem">
       <div style="display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;align-items:baseline">
@@ -160,15 +157,14 @@ function render(){
   }).join('') : `
     <div class="empty-state">
       <h3>No ratings yet</h3>
-      <p>Rate a destination across the six categories and it will show up here — and shift the table above.</p>
+      <p>Rate a destination across the eight categories and it will show up here — and shift the table above.</p>
       <a class="btn btn-primary btn-sm" href="destinations.html">Browse destinations</a>
     </div>`;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  $('#rank-chips').innerHTML =
-    `<button class="chip active" data-rank="overall">Overall</button>` +
-    RATING_CATEGORIES.map(c => `<button class="chip" data-rank="${c.key}">${c.label}</button>`).join('');
+  $('#rank-chips').innerHTML = RATING_CATEGORIES.map((c, i) =>
+    `<button class="chip${i === 0 ? ' active' : ''}" data-rank="${c.key}">${c.label}</button>`).join('');
 
   $$('#rank-chips .chip').forEach(chip => {
     chip.addEventListener('click', () => {

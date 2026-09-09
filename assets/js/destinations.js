@@ -142,7 +142,7 @@ function renderDetail(id){
         <p class="small muted" style="margin:-.4em 0 .9rem">
           ${s.blended
             ? `Blended — community ${100 - Math.round(MY_WEIGHT * 100)}%, your rating ${Math.round(MY_WEIGHT * 100)}%.`
-            : 'Community scores. Rate it below and these become your blended view.'}
+            : 'Community scores across eight categories. Rate it below and these become your blended view.'}
         </p>
         <div class="score-bars" style="margin-bottom:1.8rem">
           ${RATING_CATEGORIES.map(c => {
@@ -171,7 +171,7 @@ function renderDetail(id){
         <div class="panel panel-tight" style="background:var(--cream)">
           <h3 style="margin-bottom:.2em">Rate ${esc(d.name)}</h3>
           <p class="small muted" style="margin-bottom:1.1rem">
-            Community score <b>${s.community.toFixed(1)}</b> from ${dest_votes(d)} ratings.
+            Community <b>${s.community.toFixed(1)}</b> overall from ${dest_votes(d)} ratings.
             ${mine
               ? `You have rated this, so the scores shown are blended — yours counts for ${Math.round(MY_WEIGHT * 100)}%.`
               : 'Rate the categories you have an opinion on; skip the rest.'}
@@ -282,7 +282,6 @@ document.addEventListener('DOMContentLoaded', () => {
   $('#f-sort').addEventListener('change', e => { state.sort = e.target.value; applyFilters(); });
 
   $('#f-category').innerHTML =
-    '<option value="overall">Overall rating</option>' +
     RATING_CATEGORIES.map(c => `<option value="${c.key}">${c.label}</option>`).join('');
 
   $('#f-category').addEventListener('change', e => {
