@@ -31,6 +31,15 @@ can undo it by blanking one file.
 5. **Plan:** Free
 6. Click **Create new project**
 
+If you are asked about API settings, either now or later under
+**Project Settings → API**:
+
+| Toggle | Set to | Why |
+|---|---|---|
+| Enable Data API | **ON** | Required — the site calls `/rest/v1/ratings` directly. |
+| Automatically expose new tables | **OFF** | Safer. The SQL in step 3 grants access to the ratings table explicitly. |
+| Enable automatic RLS | **ON** | Any table you add later gets Row Level Security without you remembering. |
+
 It takes about two minutes to provision. Wait for the spinner to finish before
 the next step.
 
@@ -45,12 +54,14 @@ the next step.
 You should see a result grid at the bottom reading:
 
 ```
-policy_count | rls_enabled
-     3       |    true
+policy_count | rls_enabled | anon_can
+     3       |    true     | INSERT, SELECT, UPDATE
 ```
 
-**If `rls_enabled` is false or `policy_count` is not 3, stop and tell me.**
-Those two values are the entire security model — everything else is cosmetic.
+**If any of those three are different, stop and tell me.** They are the entire
+security model — everything else is cosmetic. In particular `anon_can` must not
+include DELETE: that is what stops anyone holding your public key emptying the
+table.
 
 ## Step 4 — Copy your two keys
 

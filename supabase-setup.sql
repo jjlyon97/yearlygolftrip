@@ -75,9 +75,27 @@ create policy "anyone can edit a rating"
 -- public anon key can wipe the table. Withdrawing a rating is
 -- done by overwriting it with an empty scores object instead.
 
--- 5. check it worked -------------------------------------------
+-- 5. table privileges -----------------------------------------
+-- If "Automatically expose new tables" is OFF in your API settings
+-- (recommended), a new table has no privileges and PostgREST will
+-- refuse it regardless of policies. These grants expose exactly
+-- this one table and nothing else.
+--
+-- Note there is no GRANT DELETE, matching the missing delete
+-- policy above. An operation now has to pass BOTH the grant and
+-- the policy, so the table cannot be emptied by anyone holding
+-- the public key.
+grant usage on schema public to anon, authenticated;
+grant select, insert, update on table public.ratings to anon, authenticated;
+
+-- 6. check it worked -------------------------------------------
 select
   (select count(*) from pg_policies
-     where schemaname = 'public' and tablename = 'ratings')          as policy_count,
-  (select relrowsecurity from pg_class where relname = 'ratings')    as rls_enabled;
--- Expect: policy_count = 3, rls_enabled = true
+     where schemaname = 'public' and tablename = 'ratings')       as policy_count,
+  (select relrowsecurity from pg_class where relname = 'ratings') as rls_enabled,
+  (select string_agg(privilege_type, ', ' order by privilege_type)
+     from information_schema.role_table_grants
+    where table_name = 'ratings' and grantee = 'anon')            as anon_can;
+-- Expect: policy_count = 3
+--         rls_enabled  = true
+--         anon_can     = INSERT, SELECT, UPDATE   (no DELETE)
