@@ -85,6 +85,12 @@ create policy "anyone can edit a rating"
 -- policy above. An operation now has to pass BOTH the grant and
 -- the policy, so the table cannot be emptied by anyone holding
 -- the public key.
+-- Revoke first. Supabase project defaults may already have granted
+-- more than this table needs (TRUNCATE and TRIGGER show up on some
+-- projects), and GRANT only ever adds. Clearing the slate first is
+-- what makes the end state predictable rather than additive.
+revoke all on table public.ratings from anon, authenticated;
+
 grant usage on schema public to anon, authenticated;
 grant select, insert, update on table public.ratings to anon, authenticated;
 
