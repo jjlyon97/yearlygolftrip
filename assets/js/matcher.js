@@ -54,14 +54,17 @@ const QUESTIONS = [
     ]
   },
   {
-    key:'travel',
-    q:'How much travel hassle can you take?',
-    hint:'Some of the best golf here is a long way from an airport.',
+    key:'region',
+    q:'How far do you want to go?',
+    hint:'Flying across the country doubles the cost of a short trip.',
     opts:[
-      {label:'Keep it simple',   sub:'Major hub, short drive',          value:1},
-      {label:'A connection is fine', sub:'Or an hour or two in the car', value:2},
-      {label:'We will drive',    sub:'Half a day of travel is fine',    value:3},
-      {label:'Anywhere',         sub:'If it is worth it, we will get there', value:4}
+      {label:'Anywhere in the US', sub:'Distance is not the problem', value:null},
+      {label:'West',      sub:'California, Oregon, Nevada, Utah, Idaho', value:'West'},
+      {label:'Southwest', sub:'Arizona and Nevada',                     value:'Southwest'},
+      {label:'Midwest',   sub:'Wisconsin, Michigan, Nebraska, Missouri',value:'Midwest'},
+      {label:'Southeast', sub:'The Carolinas, Georgia, Florida, Alabama',value:'Southeast'},
+      {label:'Northeast', sub:'New York',                                value:'Northeast'},
+      {label:'Hawaii',    sub:'Worth the flight',                        value:'Hawaii'}
     ]
   }
 ];
@@ -102,11 +105,10 @@ function scoreDestination(d){
     if(answers.style.includes(d.style)){ score += 4; why.push(d.style[0].toUpperCase() + d.style.slice(1) + ' golf'); }
   }
 
-  // travel tolerance
-  if(answers.travel){
-    const over = d.travelEase - answers.travel;
-    if(over <= 0){ score += 2; if(d.travelEase === 1) why.push('Easy to reach'); }
-    else { score -= over * 2.5; }
+  // how far they are willing to go
+  if(answers.region){
+    if(d.usRegion === answers.region){ score += 4; why.push('In the ' + answers.region); }
+    else { score -= 8; }
   }
 
   return { d, score, why: why.filter(Boolean).slice(0, 4) };
@@ -156,7 +158,7 @@ function renderResults(){
         <p class="matcher-step">Your matches</p>
         <h2 class="matcher-q">Start with these three</h2>
         <p class="small muted" style="margin:.5rem 0 0;max-width:54ch">
-          Scored on when you can travel, who is coming, budget, the golf you want and how far you will go.
+          Scored on when you can travel, who is coming, your budget, the golf you want and how far you will go.
         </p>
       </div>
       <button class="btn btn-ghost btn-sm" id="m-restart">↺ Start over</button>

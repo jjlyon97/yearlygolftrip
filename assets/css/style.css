@@ -173,9 +173,11 @@ section{padding:clamp(3.2rem,7vw,5.5rem) 0}
 
 /* ---------- grid + cards ---------- */
 .grid{display:grid;gap:1.4rem}
-.grid-3{grid-template-columns:repeat(auto-fill,minmax(320px,1fr))}
-.grid-2{grid-template-columns:repeat(auto-fill,minmax(400px,1fr))}
-.grid-4{grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
+/* min() keeps the track from forcing a column wider than the screen —
+   a bare minmax(400px,1fr) overflows any viewport under 400px */
+.grid-3{grid-template-columns:repeat(auto-fill,minmax(min(320px,100%),1fr))}
+.grid-2{grid-template-columns:repeat(auto-fill,minmax(min(400px,100%),1fr))}
+.grid-4{grid-template-columns:repeat(auto-fill,minmax(min(240px,100%),1fr))}
 
 .card{
   background:var(--card);border:1px solid var(--line);border-radius:var(--radius);

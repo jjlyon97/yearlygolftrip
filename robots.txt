@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# working files, not content
+Disallow: /tests/
+Disallow: /deploy.sh
+Disallow: /supabase-setup.sql
+
+Sitemap: https://yearlygolftrip.netlify.app/sitemap.xml

@@ -29,8 +29,7 @@ function applyFilters(){
                        || b.editorScore - a.editorScore,
     price:   (a, b) => a.priceTier - b.priceTier,
     name:    (a, b) => a.name.localeCompare(b.name),
-    courses: (a, b) => b.courses.length - a.courses.length,
-    travel:  (a, b) => a.travelEase - b.travelEase || b.editorScore - a.editorScore
+    courses: (a, b) => b.courses.length - a.courses.length
   };
   list.sort(sorters[state.sort] || sorters.editor);
 
