@@ -22,7 +22,7 @@
 <meta name="twitter:description" content="The golf travel leaderboard — destinations ranked by community rating, including the ones you have rated yourself.">
 <meta name="twitter:image" content="https://yearlygolftrip.netlify.app/assets/og-image.jpg">
 
-<link rel="stylesheet" href="assets/css/style.css?v=28">
+<link rel="stylesheet" href="assets/css/style.css?v=29">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>⛳</text></svg>">
 </head>
 <body>
@@ -85,9 +85,9 @@
 
 <footer id="site-footer"></footer>
 
-<script src="assets/js/config.js?v=28"></script>
-<script src="assets/js/data.js?v=28"></script>
-<script src="assets/js/app.js?v=28"></script>
+<script src="assets/js/config.js?v=29"></script>
+<script src="assets/js/data.js?v=29"></script>
+<script src="assets/js/app.js?v=29"></script>
 <script>
 let rankKey = 'overall';
 
@@ -109,8 +109,11 @@ function metricOf(r){ return r.s.categories[rankKey]; }
 function miniBars(r){
   return `<span class="mini-bars">` + RATING_CATEGORIES.map(c => {
     const v = r.s.categories[c.key];
-    return `<span class="mb" title="${esc(c.label)}: ${v.toFixed(1)}">
-              <span class="mb-fill${c.key === rankKey ? ' on' : ''}" style="height:${(v / 5 * 100).toFixed(0)}%"></span>
+    /* a category nobody has rated yet is an empty column, not a zero */
+    const label = v != null ? `${c.label}: ${v.toFixed(1)}` : `${c.label}: not rated yet`;
+    const h = v != null ? (v / 5 * 100).toFixed(0) : 0;
+    return `<span class="mb" title="${esc(label)}">
+              <span class="mb-fill${c.key === rankKey ? ' on' : ''}" style="height:${h}%"></span>
             </span>`;
   }).join('') + `</span>`;
 }
