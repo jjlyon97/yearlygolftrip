@@ -540,3 +540,29 @@ td .rank{font-family:var(--display);font-size:1.25rem;font-weight:700;color:var(
 .rate-cat{padding:.5rem .8rem}
 .rate-cat-label{min-width:120px}
 .rate-cat-label b{font-size:.98rem}
+
+/* ---------- cost inputs and splitting ---------- */
+.cost-input{display:flex;align-items:center;border:1px solid var(--line-strong);border-radius:var(--radius-sm);background:var(--paper);overflow:hidden}
+.cost-input span{padding:0 .1rem 0 .7rem;color:var(--muted);font-size:.95rem}
+.cost-input input{border:none;background:none;padding-left:.25rem}
+.cost-input input:focus{outline:none;box-shadow:none}
+.cost-input:focus-within{border-color:var(--green-600);box-shadow:0 0 0 3px rgba(34,112,84,.16)}
+
+.extra-row{
+  display:grid;gap:.5rem;align-items:center;margin-bottom:.5rem;
+  grid-template-columns:minmax(0,1fr) 120px 140px auto;
+}
+@media (max-width:760px){
+  .extra-row{grid-template-columns:1fr 1fr;}
+  .extra-row .ex-label{grid-column:1/-1}
+  .extra-row [data-ex-remove]{justify-self:end}
+}
+
+.split-block{margin-top:.9rem;padding-top:.6rem;border-top:1px dashed var(--line)}
+
+.each-pays{
+  display:flex;justify-content:space-between;align-items:baseline;gap:1rem;
+  margin-top:.55rem;padding-top:.55rem;border-top:1px dashed var(--line);
+  font-size:.9rem;color:var(--ink-soft);
+}
+.each-pays b{font-size:1.05rem;color:var(--ink)}

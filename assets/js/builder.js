@@ -11,10 +11,22 @@
 
 const TRIP_KEY = 'annualgolftrip.trip.v1';
 
-const blankDay = () => ({ course:'', teeTime:'', lodging:'', notes:'' });
+const blankDay = () => ({ course:'', teeTime:'', lodging:'', notes:'', fee:0, stay:0, stayWhole:false });
+
+/* An extra is anything that is not a round or a bed: the rental car, the
+   house, the caddie tips, the Thursday steak. `whole` means the amount
+   covers the group and gets divided; otherwise it is what each person pays. */
+const blankExtra = () => ({ label:'', amount:0, whole:true });
+
+/* money() already lives in app.js; money2 keeps cents when settling up,
+   because "owes $12.50" is the number people actually hand over */
+const money2 = n => {
+  const v = Number(n) || 0;
+  return '$' + (Math.abs(v) < 100 ? v.toFixed(2) : Math.round(v).toLocaleString('en-US'));
+};
 
 let trip = {
-  title:'', destId:'', startDate:'', travelers:4, days:[blankDay()]
+  title:'', destId:'', startDate:'', travelers:4, days:[blankDay()], extras:[]
 };
 
 /* ---------- base64url helpers (unicode-safe) ---------- */
@@ -34,7 +46,8 @@ function b64decode(b64){
 function encodeTrip(t){
   return b64encode(JSON.stringify({
     t:t.title, d:t.destId, s:t.startDate, p:t.travelers,
-    y:t.days.map(x => [x.course, x.teeTime, x.lodging, x.notes])
+    y:t.days.map(x => [x.course, x.teeTime, x.lodging, x.notes, x.fee, x.stay, x.stayWhole ? 1 : 0]),
+    e:(t.extras || []).map(x => [x.label, x.amount, x.whole ? 1 : 0])
   }));
 }
 
@@ -50,7 +63,15 @@ function decodeTrip(code){
       course:  String(a[0] || '').slice(0, 120),
       teeTime: String(a[1] || '').slice(0, 10),
       lodging: String(a[2] || '').slice(0, 120),
-      notes:   String(a[3] || '').slice(0, 400)
+      notes:   String(a[3] || '').slice(0, 400),
+      fee:     Math.max(0, Number(a[4]) || 0),
+      stay:    Math.max(0, Number(a[5]) || 0),
+      stayWhole: Boolean(a[6])
+    })),
+    extras: (Array.isArray(raw.e) ? raw.e : []).slice(0, 30).map(a => ({
+      label:  String(a[0] || '').slice(0, 80),
+      amount: Math.max(0, Number(a[1]) || 0),
+      whole:  Boolean(a[2])
     }))
   };
 }
@@ -60,7 +81,15 @@ function save(){ localStorage.setItem(TRIP_KEY, JSON.stringify(trip)); }
 function load(){
   try{
     const saved = JSON.parse(localStorage.getItem(TRIP_KEY));
-    if(saved && Array.isArray(saved.days) && saved.days.length) trip = saved;
+    if(saved && Array.isArray(saved.days) && saved.days.length){
+      trip = saved;
+      if(!Array.isArray(trip.extras)) trip.extras = [];   // trips saved before costs existed
+      trip.days.forEach(d => {
+        if(d.fee  === undefined) d.fee  = 0;
+        if(d.stay === undefined) d.stay = 0;
+        if(d.stayWhole === undefined) d.stayWhole = false;
+      });
+    }
   }catch{ /* keep the blank trip */ }
 }
 
@@ -74,8 +103,10 @@ function fromTemplate(tpl){
       course:  d.course === '—' ? '' : d.course,
       teeTime: d.teeTime,
       lodging: d.lodging === '—' ? '' : d.lodging,
-      notes:   d.notes
-    }))
+      notes:   d.notes,
+      fee:0, stay:0, stayWhole:false
+    })),
+    extras: []
   };
 }
 
@@ -104,10 +135,34 @@ function dayDate(i){
 
 /* ---------- trip stats ---------- */
 function stats(){
+  const heads  = Math.max(1, Number(trip.travelers) || 1);
   const rounds = trip.days.filter(d => d.course.trim()).length;
-  const dest = DEST_BY_ID[trip.destId];
-  const tier = tierFromCourses(dest, trip.days.map(d => d.course));
-  return { rounds, nights: Math.max(0, trip.days.length - 1), tier };
+  const dest   = DEST_BY_ID[trip.destId];
+  const tier   = tierFromCourses(dest, trip.days.map(d => d.course));
+
+  // green fees are quoted per player; lodging can be either
+  const golfPP  = trip.days.reduce((n, d) => n + (Number(d.fee) || 0), 0);
+  const stayPP  = trip.days.reduce((n, d) => {
+    const c = Number(d.stay) || 0;
+    return n + (d.stayWhole ? c / heads : c);
+  }, 0);
+  const extras  = trip.extras || [];
+  const extraPP = extras.reduce((n, x) => {
+    const a = Number(x.amount) || 0;
+    return n + (x.whole ? a / heads : a);
+  }, 0);
+
+  const perPerson = golfPP + stayPP + extraPP;
+  const entered   = golfPP > 0 || stayPP > 0 || extraPP > 0;
+
+  return {
+    heads, rounds, tier, entered,
+    nights: Math.max(0, trip.days.length - 1),
+    golfPP, stayPP, extraPP, perPerson,
+    /* group totals, so the breakdown adds up to the headline */
+    golf: golfPP * heads, stay: stayPP * heads, extra: extraPP * heads,
+    group: perPerson * heads
+  };
 }
 
 /* ---------- rendering ---------- */
@@ -142,6 +197,14 @@ function renderDays(){
           <label for="t${i}">Tee time</label>
           <input id="t${i}" type="time" data-f="teeTime" value="${esc(day.teeTime)}">
         </div>
+        <div class="field">
+          <label for="g${i}">Green fee <span class="muted">each</span></label>
+          <div class="cost-input">
+            <span>$</span>
+            <input id="g${i}" type="number" min="0" step="5" data-f="fee"
+                   value="${Number(day.fee) || ''}" placeholder="0">
+          </div>
+        </div>
       </div>
 
       <div class="course-link" id="k${i}">${courseLinkHTML(day.course)}</div>
@@ -152,6 +215,21 @@ function renderDays(){
           <input id="l${i}" list="dl-lodging" data-f="lodging" placeholder="Where you're staying"
                  value="${esc(day.lodging)}">
         </div>
+        <div class="field">
+          <label for="s${i}">Lodging cost</label>
+          <div class="cost-input">
+            <span>$</span>
+            <input id="s${i}" type="number" min="0" step="5" data-f="stay"
+                   value="${Number(day.stay) || ''}" placeholder="0">
+          </div>
+        </div>
+        <div class="field">
+          <label for="sw${i}">Split</label>
+          <select id="sw${i}" data-f="stayWhole">
+            <option value="each"  ${day.stayWhole ? '' : 'selected'}>Each pays</option>
+            <option value="whole" ${day.stayWhole ? 'selected' : ''}>Whole group</option>
+          </select>
+        </div>
       </div>
 
       <div class="field" style="margin-bottom:0">
@@ -160,6 +238,28 @@ function renderDays(){
                value="${esc(day.notes)}">
       </div>
     </div>`).join('');
+}
+
+function renderExtras(){
+  const box = $('#extras');
+  if(!box) return;
+  const list = trip.extras || [];
+  box.innerHTML = list.length ? list.map((x, i) => `
+    <div class="extra-row" data-idx="${i}">
+      <input class="ex-label" data-e="label" placeholder="Rental car, house, caddie tips…"
+             value="${esc(x.label)}" maxlength="80">
+      <div class="cost-input">
+        <span>$</span>
+        <input type="number" min="0" step="5" data-e="amount"
+               value="${Number(x.amount) || ''}" placeholder="0">
+      </div>
+      <select data-e="whole">
+        <option value="whole" ${x.whole ? 'selected' : ''}>Whole group</option>
+        <option value="each"  ${x.whole ? '' : 'selected'}>Each pays</option>
+      </select>
+      <button class="icon-btn" data-ex-remove title="Remove">✕</button>
+    </div>`).join('')
+    : `<p class="small muted" style="margin:0">Nothing yet. Add the rental car, the house, the caddie tips — anything that is not a green fee.</p>`;
 }
 
 function renderSummary(){
@@ -172,14 +272,27 @@ function renderSummary(){
     </p>
     <div class="cost-line"><span>Rounds</span><span><b>${s.rounds}</b></span></div>
     <div class="cost-line"><span>Nights</span><span><b>${s.nights}</b></span></div>
-    <div class="cost-line"><span>Players</span><span><b>${trip.travelers}</b></span></div>
-    <div class="cost-total"><span>Trip cost</span>
-      <b>${s.tier ? PRICE_LABEL[s.tier] : '—'}</b></div>
-    <p class="small muted" style="margin:.6rem 0 1.2rem">
-      ${s.tier ? PRICE_WORD[s.tier] + '.' : 'Pick a destination to see a cost tier.'}
-      Follow the course links for live green fees and tee times.
-    </p>
-    <div style="display:grid;gap:.55rem">
+    <div class="cost-line"><span>Players</span><span><b>${s.heads}</b></span></div>
+
+    ${s.entered ? `
+      <div class="split-block">
+        <div class="cost-line"><span>Golf</span><span>${money(s.golf)}</span></div>
+        <div class="cost-line"><span>Lodging</span><span>${money(s.stay)}</span></div>
+        ${s.extra ? `<div class="cost-line"><span>Extras</span><span>${money(s.extra)}</span></div>` : ''}
+        <div class="cost-total"><span>Trip total</span><b>${money(s.group)}</b></div>
+        <div class="each-pays">
+          <span>Each pays</span>
+          <b>${money(s.perPerson)}</b>
+        </div>
+      </div>
+
+    ` : `
+      <div class="cost-total"><span>Trip cost</span><b>${s.tier ? PRICE_LABEL[s.tier] : '—'}</b></div>
+      <p class="small muted" style="margin:.6rem 0 1.2rem">
+        ${s.tier ? PRICE_WORD[s.tier] + '. ' : ''}Add green fees and lodging costs to split the trip properly.
+      </p>`}
+
+    <div style="display:grid;gap:.55rem;margin-top:1.2rem">
       <button class="btn btn-primary btn-sm" id="btn-share">Copy share link</button>
       <button class="btn btn-ghost btn-sm" id="btn-print">Print / save as PDF</button>
       <button class="btn btn-ghost btn-sm" id="btn-reset">Start over</button>
@@ -189,7 +302,7 @@ function renderSummary(){
   $('#btn-print').addEventListener('click', printTrip);
   $('#btn-reset').addEventListener('click', () => {
     if(confirm('Clear this itinerary and start from scratch?')){
-      trip = { title:'', destId:'', startDate:'', travelers:4, days:[blankDay()] };
+      trip = { title:'', destId:'', startDate:'', travelers:4, days:[blankDay()], extras:[] };
       save(); history.replaceState(null, '', location.pathname); renderAll();
       toast('Cleared');
     }
@@ -203,6 +316,7 @@ function renderAll(){
   $('#f-travelers').value = trip.travelers;
   renderDatalists();
   renderDays();
+  renderExtras();
   renderSummary();
   renderDestNote();
 }
@@ -255,7 +369,16 @@ function printTrip(){
         ${c && c.url ? '<span style="font-size:11px">' + esc(c.url) + '</span>' : ''}
       </div>`; }).join('')}
     <hr>
-    <p><small>Cost tiers are a guide only. Confirm green fees, rates and access with each course.</small></p>`;
+    ${s.entered ? `
+      <p><b>Trip total ${money(s.group)}</b> &nbsp;·&nbsp; ${money(s.perPerson)} each for ${s.heads} players<br>
+         <span style="font-size:12px">Golf ${money(s.golf)} · Lodging ${money(s.stay)}${s.extra ? ' · Extras ' + money(s.extra) : ''}</span></p>
+      ${(trip.extras || []).filter(x => x.label.trim()).length ? `
+        <p style="font-size:12px"><b>Shared costs</b><br>
+        ${trip.extras.filter(x => x.label.trim()).map(x =>
+          `${esc(x.label)} — ${money(x.amount)} ${x.whole ? '(group)' : '(each)'}`
+        ).join('<br>')}</p>` : ''}
+    ` : `<p><small>Cost tiers are a guide only. Confirm green fees and rates with each course.</small></p>`}`;
+
   window.print();
 }
 
@@ -313,17 +436,24 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   /* day fields — delegated so typing never rebuilds the DOM */
-  $('#days').addEventListener('input', e => {
+  $('#days').addEventListener('change', e => {
+    if(e.target.dataset.f === 'stayWhole') handleDayField(e);
+  });
+  function handleDayField(e){
     const field = e.target.dataset.f;
     if(!field) return;
     const idx = Number(e.target.closest('.day-card').dataset.idx);
-    trip.days[idx][field] = e.target.value;
+    trip.days[idx][field] = (field === 'fee' || field === 'stay')
+      ? Math.max(0, Number(e.target.value) || 0)
+      : field === 'stayWhole' ? e.target.value === 'whole'
+      : e.target.value;
 
     if(field === 'course'){
       $(`#k${idx}`).innerHTML = courseLinkHTML(trip.days[idx].course);
     }
     save(); renderSummary();
-  });
+  }
+  $('#days').addEventListener('input', handleDayField);
 
   /* day actions */
   $('#days').addEventListener('click', e => {
@@ -344,11 +474,40 @@ document.addEventListener('DOMContentLoaded', () => {
     save(); renderDays(); renderSummary();
   });
 
+  const extrasBox = $('#extras');
+  const onExtraChange = e => {
+    const field = e.target.dataset.e;
+    if(!field) return;
+    const idx = Number(e.target.closest('.extra-row').dataset.idx);
+    trip.extras[idx][field] =
+      field === 'amount' ? Math.max(0, Number(e.target.value) || 0)
+    : field === 'whole'  ? e.target.value === 'whole'
+    : e.target.value;
+    save(); renderSummary();
+  };
+  extrasBox.addEventListener('input', onExtraChange);
+  extrasBox.addEventListener('change', onExtraChange);
+
+  extrasBox.addEventListener('click', e => {
+    if(!e.target.closest('[data-ex-remove]')) return;
+    const idx = Number(e.target.closest('.extra-row').dataset.idx);
+    trip.extras.splice(idx, 1);
+    save(); renderExtras(); renderSummary();
+  });
+
+  $('#add-extra').addEventListener('click', () => {
+    if(trip.extras.length >= 30){ toast('Thirty extras is plenty'); return; }
+    trip.extras.push(blankExtra());
+    save(); renderExtras(); renderSummary();
+    const rows = $$('#extras .extra-row');
+    rows[rows.length - 1].querySelector('.ex-label').focus();
+  });
+
   $('#add-day').addEventListener('click', () => {
     if(trip.days.length >= 30){ toast('Thirty days is the limit'); return; }
     const prev = trip.days[trip.days.length - 1];
     // carry lodging forward — you usually stay put
-    trip.days.push({ ...blankDay(), lodging:prev.lodging });
+    trip.days.push({ ...blankDay(), lodging:prev.lodging, stay:prev.stay, stayWhole:prev.stayWhole });
     save(); renderDays(); renderSummary();
     $('#days').lastElementChild.scrollIntoView({ behavior:'smooth', block:'center' });
   });

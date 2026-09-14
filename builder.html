@@ -22,7 +22,7 @@
 <meta name="twitter:description" content="Build a golf trip itinerary day by day — courses, tee times and lodging bundled with a running per-person cost — then share it with your group as a single link.">
 <meta name="twitter:image" content="https://yearlygolftrip.netlify.app/assets/og-image.jpg">
 
-<link rel="stylesheet" href="assets/css/style.css?v=43">
+<link rel="stylesheet" href="assets/css/style.css?v=49">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>⛳</text></svg>">
 </head>
 <body>
@@ -33,7 +33,7 @@
     <div class="wrap">
       <p class="eyebrow">Itinerary builder</p>
       <h1 style="max-width:16ch">Build your trip</h1>
-      <p class="lede">Add a day, pick a course and a tee time, add where you're staying. Each course links to its own site so you can book. Everything saves as you type.</p>
+      <p class="lede">Add a day, pick a course and a tee time, add where you're staying. Put in what things cost and it works out what each person owes. Everything saves as you type.</p>
     </div>
   </section>
 
@@ -70,6 +70,17 @@
 
           <button class="btn btn-ghost no-print" id="add-day" style="width:100%">+ Add another day</button>
 
+          <div class="panel" style="margin-top:1.5rem">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;gap:1rem;flex-wrap:wrap">
+              <div>
+                <h3 style="margin-bottom:.15em">Shared costs</h3>
+                <p class="small muted" style="margin:0">The car, the house, the caddie tips — anything that is not a green fee.</p>
+              </div>
+              <button class="btn btn-ghost btn-sm no-print" id="add-extra">+ Add</button>
+            </div>
+            <div id="extras" style="margin-top:1rem"></div>
+          </div>
+
           <div id="share-out" hidden class="panel no-print" style="margin-top:1.5rem">
             <h3 style="margin-bottom:.3em">Share this itinerary</h3>
             <p class="small muted">The whole trip is inside this link. Anyone who opens it sees your plan and can edit their own copy.</p>
@@ -98,10 +109,10 @@
 
 <footer id="site-footer"></footer>
 
-<script src="assets/js/config.js?v=43"></script>
-<script src="assets/js/data.js?v=43"></script>
-<script src="assets/js/app.js?v=43"></script>
-<script src="assets/js/builder.js?v=43"></script>
+<script src="assets/js/config.js?v=49"></script>
+<script src="assets/js/data.js?v=49"></script>
+<script src="assets/js/app.js?v=49"></script>
+<script src="assets/js/builder.js?v=49"></script>
 <style>
 @media print{
   main > section, .builder-layout > div:first-child, aside { display:none !important; }
