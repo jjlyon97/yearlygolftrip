@@ -160,11 +160,12 @@ function raterId(){
 }
 
 function sbHeaders(extra = {}){
-  return Object.assign({
-    'apikey': SB.anonKey,
-    'Authorization': 'Bearer ' + SB.anonKey,
-    'Content-Type': 'application/json'
-  }, extra);
+  const h = { 'apikey': SB.anonKey, 'Content-Type': 'application/json' };
+  /* Legacy anon keys are JWTs and PostgREST wants them as a Bearer token too.
+     The newer sb_publishable_ keys are not JWTs — sending one as a Bearer
+     token gets rejected as a malformed JWT, so only do it for the old format. */
+  if(/^eyJ/.test(SB.anonKey)) h['Authorization'] = 'Bearer ' + SB.anonKey;
+  return Object.assign(h, extra);
 }
 
 /** Mean of whatever category scores are present, or null. */

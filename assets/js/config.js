@@ -14,6 +14,6 @@
    supabase-setup.sql before putting a key here.
    ============================================================ */
 window.SUPABASE_CONFIG = {
-  url:     '',   // e.g. 'https://abcdefghijkl.supabase.co'  (no trailing slash)
-  anonKey: ''    // the long "anon public" key
+  url:     'https://vnwxaqwooneoumqyajfh.supabase.co',
+  anonKey: 'sb_publishable_5eDaDRPkSwxX9OwpPb17bA_gWZMcUku'
 };
