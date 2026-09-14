@@ -22,7 +22,7 @@
 <meta name="twitter:description" content="Plan a US golf trip end to end: answer five questions to find the right destination, browse the twenty best golf areas in America, and build a shareable day-by-day itinerary.">
 <meta name="twitter:image" content="https://yearlygolftrip.netlify.app/assets/og-image.jpg">
 
-<link rel="stylesheet" href="assets/css/style.css?v=29">
+<link rel="stylesheet" href="assets/css/style.css?v=30">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>⛳</text></svg>">
 </head>
 <body>
@@ -38,11 +38,6 @@
       <div class="hero-actions">
         <a class="btn btn-sand" href="#matcher-section">Where should you go? →</a>
         <a class="btn btn-ghost" href="builder.html">Build your itinerary</a>
-      </div>
-      <div class="hero-stats">
-        <div class="hero-stat"><b id="stat-dest">26</b><span>Trips worth taking</span></div>
-        <div class="hero-stat"><b>5</b><span>Questions to your match</span></div>
-        <div class="hero-stat"><b>1</b><span>Link to send the group</span></div>
       </div>
     </div>
   </div>
@@ -132,15 +127,13 @@
 
 <footer id="site-footer"></footer>
 
-<script src="assets/js/config.js?v=29"></script>
-<script src="assets/js/data.js?v=29"></script>
-<script src="assets/js/app.js?v=29"></script>
-<script src="assets/js/matcher.js?v=29"></script>
+<script src="assets/js/config.js?v=30"></script>
+<script src="assets/js/data.js?v=30"></script>
+<script src="assets/js/app.js?v=30"></script>
+<script src="assets/js/matcher.js?v=30"></script>
 <script>
 document.addEventListener('DOMContentLoaded', async () => {
   await Ratings.load();
-
-  $('#stat-dest').textContent = DESTINATIONS.length;
 
   // six highest editor scores
   const featured = [...DESTINATIONS].sort((a, b) => b.editorScore - a.editorScore).slice(0, 6);

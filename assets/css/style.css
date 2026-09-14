@@ -164,9 +164,6 @@ p{margin:0 0 1em}
 .hero-actions{display:flex;flex-wrap:wrap;gap:.75rem;margin-top:2rem}
 .hero-actions .btn-ghost{color:#f4efe2;border-color:rgba(244,239,226,.35)}
 .hero-actions .btn-ghost:hover{border-color:var(--sand);color:var(--sand)}
-.hero-stats{display:flex;flex-wrap:wrap;gap:2.4rem;margin-top:3.2rem;padding-top:1.8rem;border-top:1px solid rgba(244,239,226,.16)}
-.hero-stat b{display:block;font-family:var(--display);font-size:1.85rem;color:var(--sand-soft);line-height:1}
-.hero-stat span{font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;color:rgba(244,239,226,.62)}
 
 /* ---------- sections ---------- */
 section{padding:clamp(3.2rem,7vw,5.5rem) 0}
