@@ -22,7 +22,7 @@
 <meta name="twitter:description" content="The golf travel leaderboard — destinations ranked by community rating, including the ones you have rated yourself.">
 <meta name="twitter:image" content="https://yearlygolftrip.netlify.app/assets/og-image.jpg">
 
-<link rel="stylesheet" href="assets/css/style.css?v=30">
+<link rel="stylesheet" href="assets/css/style.css?v=33">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>⛳</text></svg>">
 </head>
 <body>
@@ -33,7 +33,7 @@
     <div class="wrap">
       <p class="eyebrow">The leaderboard</p>
       <h1 style="max-width:16ch">Top rated destinations</h1>
-      <p class="lede">The table starts empty and fills up as places get rated. Rank whatever has been scored by the category that matters to you — the golf, the fun, the travel, the value, or the bit that keeps non-golfers happy.</p>
+      <p class="lede">This starts empty and fills up as places get rated. Sort by whichever category matters to you: the golf, the fun, the travel, the value, or how much there is to do off the course.</p>
     </div>
   </section>
 
@@ -73,11 +73,7 @@
       </div>
 
       <p class="small muted" style="margin-top:2.5rem;max-width:70ch">
-        Community scores shown here are sample seed data used to give the leaderboard a starting
-        shape — they are not aggregated from real travellers. Your own ratings are stored in this
-        browser's local storage and are never sent anywhere. Where you have rated a destination,
-        the score shown is a blend weighted 75% community / 25% yours, so your opinion actually
-        moves the table rather than being lost among hundreds of seeded votes.
+        Every score here comes from someone who rated the place. There are no starting numbers and no made-up reviews, which is why the table is empty until people fill it.
       </p>
     </div>
   </section>
@@ -85,9 +81,9 @@
 
 <footer id="site-footer"></footer>
 
-<script src="assets/js/config.js?v=30"></script>
-<script src="assets/js/data.js?v=30"></script>
-<script src="assets/js/app.js?v=30"></script>
+<script src="assets/js/config.js?v=33"></script>
+<script src="assets/js/data.js?v=33"></script>
+<script src="assets/js/app.js?v=33"></script>
 <script>
 let rankKey = 'overall';
 
@@ -127,8 +123,7 @@ function render(){
     ? rows.slice(0, 3).map((r, i) => destinationCard(r.d, i + 1)).join('')
     : `<div class="empty-state" style="grid-column:1/-1">
          <h3>No ratings yet</h3>
-         <p>Nothing on this site is scored until somebody actually plays it and says so.
-            Rate a destination you have been to and it appears here straight away.</p>
+         <p>Nothing gets a score until someone plays it and says so. Rate a place you've been and it shows up here.</p>
          <a class="btn btn-primary btn-sm" href="destinations.html">Rate a destination</a>
        </div>`;
 
@@ -191,7 +186,7 @@ function render(){
   }).join('') : `
     <div class="empty-state">
       <h3>No ratings yet</h3>
-      <p>Rate a destination across the eight categories and it will show up here — and appear in the table above.</p>
+      <p>Rate a place across the eight categories and it shows up here and in the table above.</p>
       <a class="btn btn-primary btn-sm" href="destinations.html">Browse destinations</a>
     </div>`;
 }
@@ -219,6 +214,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       render();
     }
   });
+
+  document.addEventListener('ratings:changed', render);
 
   render();
 });

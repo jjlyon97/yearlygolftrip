@@ -98,7 +98,7 @@ function renderChrome(){
         <div class="footer-grid">
           <div>
             <div class="brand">${BRAND_MARK} <span>Yearly Golf Trip</span></div>
-            <p class="small" style="max-width:38ch">Trip planning for people who pick the holiday around the tee sheet. Build an itinerary, price it out, send it to the group.</p>
+            <p class="small" style="max-width:38ch">For people who plan the holiday around the golf. Build an itinerary and send it to the group.</p>
           </div>
           <div>
             <h4>Plan</h4>
@@ -119,7 +119,7 @@ function renderChrome(){
         </div>
         <div class="footer-bottom">
           <span>© ${new Date().getFullYear()} Yearly Golf Trip — a demo project.</span>
-          <span>Prices and scores are sample planning estimates, not live rates.</span>
+          <span>Cost tiers are a guide. Check each course for current prices.</span>
         </div>
       </div>`;
   }
@@ -385,11 +385,22 @@ function destinationCard(d, rank){
           <span class="pill pill-sand">${PRICE_LABEL[d.priceTier]} ${PRICE_WORD[d.priceTier]}</span>
           <span class="pill">${d.courses.length} courses</span>
         </div>
-        <div class="card-foot">
-          ${s.rated
-            ? `<span>${starsHTML(s.value)} <span class="score">${s.value.toFixed(1)}</span></span>
-               ${best ? `<span class="pill">Best for ${esc(best.short.toLowerCase())}</span>` : ''}`
-            : `<span class="muted small">Not rated yet — <a href="destinations.html#${d.id}">be the first</a></span>`}
+        <div class="card-rate">
+          <div class="card-rate-head">
+            <span class="card-rate-label">${s.rated
+              ? `<b>${s.value.toFixed(1)}</b> from ${s.votes} ${s.votes === 1 ? 'rating' : 'ratings'}`
+              : 'No ratings yet'}</span>
+            ${best ? `<span class="pill">Best for ${esc(best.short.toLowerCase())}</span>` : ''}
+          </div>
+          <div class="quick-rate">
+            <span class="quick-rate-ask">${s.mine ? 'You rated it' : 'Been here? Rate it'}</span>
+            <span class="quick-stars" data-dest="${d.id}">
+              ${[1,2,3,4,5].map(n => `
+                <button class="qs${s.mine && s.mine.scores.overall >= n ? ' on' : ''}"
+                        data-n="${n}" title="${n} out of 5"
+                        aria-label="Rate ${esc(d.name)} ${n} out of 5">★</button>`).join('')}
+            </span>
+          </div>
         </div>
         <div class="card-actions">
           ${trip ? `<a class="btn btn-ghost btn-sm" href="trips.html#${trip.id}">The itinerary</a>` : ''}
@@ -398,6 +409,30 @@ function destinationCard(d, rank){
       </div>
     </article>`;
 }
+
+/* ---------- quick rating from a card ----------
+   One click sets the Overall score. Anything more detailed happens
+   on the destination page. Delegated from document so it works on
+   whichever page the card happens to be rendered. */
+document.addEventListener('click', async (e) => {
+  const btn = e.target.closest('.qs');
+  if(!btn) return;
+  e.preventDefault();
+
+  const wrap = btn.closest('.quick-stars');
+  const id   = wrap.dataset.dest;
+  const n    = Number(btn.dataset.n);
+
+  wrap.querySelectorAll('.qs').forEach(b =>
+    b.classList.toggle('on', Number(b.dataset.n) <= n));
+
+  const existing = Ratings.get(id);
+  await Ratings.set(id, Object.assign({}, existing && existing.scores, { overall:n }), existing ? existing.review : '');
+
+  const name = DEST_BY_ID[id] ? DEST_BY_ID[id].name : 'it';
+  toast(`${name} rated ${n}/5 — add more detail on its page`);
+  document.dispatchEvent(new CustomEvent('ratings:changed', { detail:{ id } }));
+});
 
 /* ---------- boot ---------- */
 document.addEventListener('DOMContentLoaded', renderChrome);

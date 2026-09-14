@@ -23,7 +23,7 @@
    the rest — "was this a good trip?" is its own judgement, not the mean of
    eight sub-scores. The others explain it. */
 const RATING_CATEGORIES = [
-  {key:'overall',   label:'Overall trip',          short:'Overall',   hint:'All in — would you tell a mate to go?'},
+  {key:'overall',   label:'Overall trip',          short:'Overall',   hint:'All in — would you tell a friend to go?'},
   {key:'fun',       label:'Fun & enjoyment',       short:'Fun',       hint:'How much fun was the golf, regardless of how hard or famous it is?'},
   {key:'quality',   label:'Course quality',        short:'Quality',   hint:'The design — the holes you actually remember.'},
   {key:'depth',     label:'Course depth',          short:'Depth',     hint:'Enough good golf to fill the trip, or one course and filler?'},
@@ -269,7 +269,7 @@ const DESTINATIONS = [
     priceTier:3, editorScore:8.7, access:'Resort — public, guests get preferred rates',
     goodFor:['buddies', 'architecture', 'couples'],
     site:'https://www.destinationkohler.com',
-    highlights:['2021 Ryder Cup venue','Caddie-required walking at the Straits','American Club is a genuinely great hotel'],
+    highlights:['2021 Ryder Cup venue','Caddie-required walking at the Straits','American Club is a great hotel'],
     watchouts:['Over 1,000 bunkers on the Straits','Lake wind can be savage in spring'],
     courses:[
       {name:'Whistling Straits (Straits)', designer:'Pete Dye', par:72, tier:4, url:'https://www.destinationkohler.com', note:'Walking with caddie required'},
@@ -288,7 +288,7 @@ const DESTINATIONS = [
     usRegion:'Midwest', style:'sand', palette:['#a5c1d5','#cfd6b4','#6f8d51','#dbd2b1'],
     tagline:'Arcadia Bluffs above Lake Michigan and Doak’s reversible Loop, ninety minutes apart.',
     blurb:'The Midwest’s best summer golf region and still badly underrated nationally. Arcadia Bluffs sits 200 feet above the lake, Forest Dunes holds the only reversible course in America, and the whole area turns into a cherry-and-wine holiday town from June onward.',
-    longBlurb:'The Midwest\'s best summer golf is up here and most of the country has still not noticed. Arcadia Bluffs sits two hundred feet above Lake Michigan with a clubhouse that looks like it was airlifted from Ireland, and on a clear evening the view down the coast is the single best thing in Michigan golf. Its South Course is a completely different animal — a flat, formal homage to Chicago Golf Club that divides opinion sharply. Ninety minutes east at Forest Dunes is The Loop, Tom Doak\'s reversible course: eighteen greens, two routings, playing clockwise one day and anticlockwise the next. It sounds like a gimmick and is genuinely one of the most interesting things built this century. The catch is the season, which runs May to October and gets busy the moment the cherries ripen.',
+    longBlurb:'The Midwest\'s best summer golf is up here and most of the country has still not noticed. Arcadia Bluffs sits two hundred feet above Lake Michigan with a clubhouse that looks like it was airlifted from Ireland, and on a clear evening the view down the coast is the single best thing in Michigan golf. Its South Course is a completely different animal — a flat, formal homage to Chicago Golf Club that divides opinion sharply. Ninety minutes east at Forest Dunes is The Loop, Tom Doak\'s reversible course: eighteen greens, two routings, playing clockwise one day and anticlockwise the next. It sounds like a gimmick and is one of the most interesting things built this century. The catch is the season, which runs May to October and gets busy the moment the cherries ripen.',
     season:'May – October', seasonMonths:[5,6,7,8,9,10],
     airport:'Traverse City (TVC), 30 min · Grand Rapids (GRR), 2h30',
     gettingThere:'Traverse City is easy in summer, thinner the rest of the year — and the courses are spread over a two-hour radius.',
@@ -368,7 +368,7 @@ const DESTINATIONS = [
       {name:'Pinehurst No. 8', designer:'Tom Fazio', par:72, tier:2, url:'https://www.pinehurst.com', note:'Centennial course, out on its own'},
       {name:'Pinehurst No. 9', designer:'Jack Nicklaus', par:72, tier:2, url:'https://www.pinehurst.com', note:'Formerly National Golf Club'},
       {name:'Southern Pines Golf Club', designer:'Donald Ross / Kyle Franz', par:71, tier:2, url:'https://www.pineneedleslodge.com', note:'Superb 2021 restoration'},
-      {name:'Tobacco Road', designer:'Mike Strantz', par:71, tier:2, url:'https://www.tobaccoroadgolf.com', note:'Wild, divisive, unforgettable'},
+      {name:'Tobacco Road', designer:'Mike Strantz', par:71, tier:2, url:'https://www.tobaccoroadgolf.com', note:'Wild, divisive, hard to forget'},
       {name:'Dormie Club', designer:'Coore & Crenshaw', par:71, private:true, note:'Private — Coore & Crenshaw in the sandhills'}
     ],
     lodging:[
@@ -390,7 +390,7 @@ const DESTINATIONS = [
     goodFor:['families', 'couples', 'buddies'],
     site:'https://kiawahresort.com',
     highlights:['Ryder Cup and PGA Championship history','Works as a family trip, not just a buddies trip','Charleston food scene nearby'],
-    watchouts:['Ocean Course in wind is genuinely punishing','Hurricane season overlaps the autumn window'],
+    watchouts:['Ocean Course in wind is punishing','Hurricane season overlaps the autumn window'],
     courses:[
       {name:'The Ocean Course', designer:'Pete Dye', par:72, tier:4, url:'https://kiawahresort.com', note:'Walking-only before noon'},
       {name:'Cassique', designer:'Tom Watson', par:72, private:true, note:'Private — member or club-to-club only'},
@@ -408,8 +408,8 @@ const DESTINATIONS = [
     id:'myrtle-beach', name:'Myrtle Beach', region:'South Carolina', country:'USA',
     usRegion:'Southeast', style:'resort', palette:['#a8c8dc','#d4d5b4','#7d9a58','#e4dab8'],
     tagline:'Eighty courses on sixty miles of coast — the highest-volume golf trip in America, and the cheapest.',
-    blurb:'The Grand Strand is where American buddies-trip golf was industrialised: package deals, cart girls, and a tee time every seven minutes. Ignore the snobbery — Caledonia and True Blue are genuinely excellent, and nowhere else lets twelve people play four rounds without anyone remortgaging.',
-    longBlurb:'Sixty miles of coast, roughly eighty courses, and an entire local economy built around getting groups of eight onto a tee sheet efficiently. The snobbery about Myrtle Beach is half-earned — plenty of the courses are forgettable and the package machinery can feel industrial — but the top end is genuinely excellent and nowhere else in America delivers four good rounds at this price. Mike Strantz is the reason to come: Caledonia is routed through an old rice plantation under live oaks and is one of the most beautiful golf courses in the country, and True Blue ten minutes away is its wilder, sandier opposite. Book through a package operator rather than course by course, put the two Strantz courses back to back in the middle of the trip, and ignore anyone who tells you this is not a real golf destination.',
+    blurb:'The Grand Strand is where American buddies-trip golf was industrialised: package deals, cart girls, and a tee time every seven minutes. Ignore the snobbery — Caledonia and True Blue are excellent, and nowhere else lets twelve people play four rounds without anyone remortgaging.',
+    longBlurb:'Sixty miles of coast, roughly eighty courses, and an entire local economy built around getting groups of eight onto a tee sheet efficiently. The snobbery about Myrtle Beach is half-earned — plenty of the courses are forgettable and the package machinery can feel industrial — but the top end is excellent and nowhere else in America delivers four good rounds at this price. Mike Strantz is the reason to come: Caledonia is routed through an old rice plantation under live oaks and is one of the most beautiful golf courses in the country, and True Blue ten minutes away is its wilder, sandier opposite. Book through a package operator rather than course by course, put the two Strantz courses back to back in the middle of the trip, and ignore anyone who tells you this is not a real golf destination.',
     season:'March – May, September – November', seasonMonths:[3,4,5,9,10,11],
     airport:'Myrtle Beach (MYR), 20 min · Charleston (CHS), 2h',
     gettingThere:'Myrtle Beach has plenty of seasonal direct service and the courses start 20 minutes away.',
@@ -442,7 +442,7 @@ const DESTINATIONS = [
     usRegion:'Southeast', style:'coastal', palette:['#9cc0d2','#ccd4b2','#6f8d54','#dbd2b0'],
     tagline:'Harbour Town’s lighthouse finish, live oaks, and the most relaxed golf week in the Lowcountry.',
     blurb:'Pete Dye and a young Jack Nicklaus built Harbour Town small and tight on purpose, as an antidote to the era’s bulldozed monsters — tiny greens, trees in the way, and a closing hole along Calibogue Sound. The island around it is bike paths and beach houses, which makes this the easiest sell to a group that includes non-golfers.',
-    longBlurb:'Harbour Town was a deliberate rebuke. In 1969, when American architecture meant enormous greens and heroic carries, Pete Dye and a 29-year-old Jack Nicklaus built something small, tight and awkward, with tiny greens tucked behind live oaks and railroad-tie bulkheads. It was immediately loved, and the RBC Heritage has been played there every April since. The closing hole runs along Calibogue Sound to a green beneath the striped lighthouse and is one of the most recognisable finishes in golf. The island itself is the other half of the appeal: bike paths instead of roads, beach houses under moss-hung oaks, and a genuinely relaxed pace that makes this the easiest sell on this list to a group containing people who do not play. Palmetto Bluff, thirty minutes inland, is worth the drive.',
+    longBlurb:'Harbour Town was a deliberate rebuke. In 1969, when American architecture meant enormous greens and heroic carries, Pete Dye and a 29-year-old Jack Nicklaus built something small, tight and awkward, with tiny greens tucked behind live oaks and railroad-tie bulkheads. It was immediately loved, and the RBC Heritage has been played there every April since. The closing hole runs along Calibogue Sound to a green beneath the striped lighthouse and is one of the most recognisable finishes in golf. The island itself is the other half of the appeal: bike paths instead of roads, beach houses under moss-hung oaks, and a relaxed pace that makes this the easiest sell on this list to a group containing people who do not play. Palmetto Bluff, thirty minutes inland, is worth the drive.',
     season:'March – May, September – November', seasonMonths:[3,4,5,9,10,11],
     airport:'Hilton Head (HHH), 15 min · Savannah (SAV), 45 min',
     gettingThere:'Hilton Head’s own airport is small; Savannah is 45 minutes and far cheaper.',
@@ -496,7 +496,7 @@ const DESTINATIONS = [
     id:'streamsong', name:'Streamsong', region:'Florida', country:'USA',
     usRegion:'Southeast', style:'sand', palette:['#b0c7d6','#dcd6b2','#8f9c58','#e6dcbb'],
     tagline:'Three big-name courses rising out of reclaimed Florida phosphate mine land.',
-    blurb:'Nothing else in Florida looks like this — 200-foot sand ridges and lakes in the middle of cattle country, with Coore & Crenshaw, Doak and Hanse each given their own course. Remote by design, walkable, and a genuinely great two-night stop.',
+    blurb:'Nothing else in Florida looks like this — 200-foot sand ridges and lakes in the middle of cattle country, with Coore & Crenshaw, Doak and Hanse each given their own course. Remote by design, walkable, and a great two-night stop.',
     longBlurb:'Mosaic mined phosphate out of central Florida for decades and left behind two hundred feet of sand ridges, deep lakes and no topsoil. Rather than flatten it, the owners handed parcels to Coore and Crenshaw, Tom Doak and Gil Hanse and told them to route courses through the spoil. The result looks nothing like Florida — no palm trees, no housing, no water hazards in the conventional sense, just sand, scrub and enormous rumpled ground. Red and Blue share a clubhouse and intertwine; Black sits apart with its own building and the biggest greens most people will ever putt on. It is deliberately remote, which is either the appeal or the problem depending on your group: there is no town, no nightlife, and nothing to do between rounds but eat and talk about the golf.',
     season:'October – April', seasonMonths:[10,11,12,1,2,3,4],
     airport:'Tampa (TPA), 1h20 · Orlando (MCO), 1h30',
@@ -522,7 +522,7 @@ const DESTINATIONS = [
     usRegion:'Southeast', style:'parkland', palette:['#a6c9d8','#cfd8ae','#6f9450','#dfd9b0'],
     tagline:'Bay Hill, Grand Cypress and fifty more — the easiest golf trip to sell to a group with families.',
     blurb:'Not the most characterful golf in America, but no destination is easier to reach or better at absorbing a mixed group. Direct flights from everywhere, villas with pools, and Streamsong ninety minutes down the road when you want the serious round.',
-    longBlurb:'Orlando is not where anyone goes for architecture, and pretending otherwise misses the point. What it offers is logistics: the cheapest flights in American golf from almost any city, villas with pools that sleep eight for less than two hotel rooms, and enough non-golf that a mixed group with children stays genuinely happy. Bay Hill is the one with history — Arnold Palmer bought it in 1974, lived there until he died, and the Tour still plays it every March — though access requires a lodge stay. Grand Cypress is the curiosity: Nicklaus built a serious homage to the Old Course, complete with double greens, stone walls and pot bunkers, in the middle of Florida. The real move is treating Orlando as a base and driving ninety minutes to Streamsong for the round that justifies the trip.',
+    longBlurb:'Orlando is not where anyone goes for architecture, and pretending otherwise misses the point. What it offers is logistics: the cheapest flights in American golf from almost any city, villas with pools that sleep eight for less than two hotel rooms, and enough non-golf that a mixed group with children stays happy. Bay Hill is the one with history — Arnold Palmer bought it in 1974, lived there until he died, and the Tour still plays it every March — though access requires a lodge stay. Grand Cypress is the curiosity: Nicklaus built a serious homage to the Old Course, complete with double greens, stone walls and pot bunkers, in the middle of Florida. The real move is treating Orlando as a base and driving ninety minutes to Streamsong for the round that justifies the trip.',
     season:'October – April', seasonMonths:[10,11,12,1,2,3,4],
     airport:'Orlando (MCO), 20–40 min',
     gettingThere:'Cheap direct flights from nearly anywhere, and the courses are 20 to 40 minutes out.',
@@ -595,7 +595,7 @@ const DESTINATIONS = [
     goodFor:['buddies', 'architecture'],
     site:'https://parks.ny.gov',
     highlights:['2025 Ryder Cup venue','Five courses on the Bethpage property alone','New York City on the same trip'],
-    watchouts:['Bethpage Black tee times are genuinely hard to get','The famous private clubs are not accessible — plan around that'],
+    watchouts:['Bethpage Black tee times are hard to get','The famous private clubs are not accessible — plan around that'],
     courses:[
       {name:'Bethpage Black', designer:'A.W. Tillinghast', par:71, tier:2, url:'https://parks.ny.gov', note:'Warning sign at the first tee'},
       {name:'Bethpage Red', designer:'A.W. Tillinghast', par:70, tier:1, url:'https://parks.ny.gov', note:'Excellent and far easier to book'},
@@ -682,7 +682,7 @@ const DESTINATIONS = [
     usRegion:'West', style:'sand', palette:['#a7c3d6','#d9d4ae','#8d9a54','#e4dab6'],
     tagline:'Sagebrush, sand and enormous fairways above the Columbia River — the friendliest great course in America.',
     blurb:'David McLay Kidd built Gamble Sands as an apology for how hard Tetherow and Castle Course were, and it worked: fairways you cannot miss, greens that feed the ball in, and views for eighty miles. Scarecrow arrived in 2024 and is the harder, wilder sibling.',
-    longBlurb:'David McLay Kidd built Tetherow and the Castle Course, got told repeatedly that they were too hard, and responded with Gamble Sands — a deliberate act of generosity. The fairways are enormous, the greens accept and feed the ball toward the hole, and it is close to impossible to lose a ball. The result is a course that great players still find interesting and average players find joyful, which is a genuinely difficult trick. It sits on a bluff above the Columbia River in sagebrush country with views running eighty miles, and the sand is real, so it plays firm all summer. Scarecrow arrived in 2024 as the wilder, more exposed sibling. QuickSands, the fourteen-hole short course, is the thing people go home talking about. Nothing else is within half an hour, so stay on site.',
+    longBlurb:'David McLay Kidd built Tetherow and the Castle Course, got told repeatedly that they were too hard, and responded with Gamble Sands — a deliberate act of generosity. The fairways are enormous, the greens accept and feed the ball toward the hole, and it is close to impossible to lose a ball. The result is a course that great players still find interesting and average players find fun, which is a difficult trick. It sits on a bluff above the Columbia River in sagebrush country with views running eighty miles, and the sand is real, so it plays firm all summer. Scarecrow arrived in 2024 as the wilder, more exposed sibling. QuickSands, the fourteen-hole short course, is the thing people go home talking about. Nothing else is within half an hour, so stay on site.',
     season:'May – October', seasonMonths:[4,5,6,7,8,9,10],
     airport:'Wenatchee (EAT), 1h · Seattle (SEA), 3h30 drive',
     gettingThere:'Most people fly to Seattle and drive three and a half hours over the Cascades. Wenatchee is closer but thinly served.',
@@ -692,7 +692,7 @@ const DESTINATIONS = [
     highlights:['Two full courses plus one of the best short courses anywhere','Wide enough that everyone in the group enjoys it','Superb value for the quality'],
     watchouts:['A long way from a major airport','Very hot in midsummer'],
     courses:[
-      {name:'Gamble Sands', designer:'David McLay Kidd', par:72, tier:2, url:'https://www.gamblesands.com', note:'Wide, fast and joyful'},
+      {name:'Gamble Sands', designer:'David McLay Kidd', par:72, tier:2, url:'https://www.gamblesands.com', note:'Wide, fast and fun'},
       {name:'Scarecrow', designer:'David McLay Kidd', par:72, tier:2, url:'https://www.gamblesands.com', note:'Opened 2024 — bolder and tougher'},
       {name:'QuickSands', designer:'David McLay Kidd', par:37, tier:1, url:'https://www.gamblesands.com', note:'14-hole short course, play it twice'},
       {name:'The Cradle at Sands', designer:'David McLay Kidd', par:3, tier:1, url:'https://www.gamblesands.com', note:'Putting course by the clubhouse'}
@@ -707,7 +707,7 @@ const DESTINATIONS = [
     usRegion:'West', style:'mountain', palette:['#9cbcd4','#c9d4b4','#5f8250','#d8d0b0'],
     tagline:'The floating green, a lake steamer to the first tee, and pine forest in every direction.',
     blurb:'Coeur d’Alene Resort has the most photographed gimmick in golf — a par 3 to an island green that is moved by cable to a different yardage each day — and the rest of the course is far better than the gimmick suggests. Circling Raven up the road is the serious golf.',
-    longBlurb:'The floating green is a gimmick and it is also completely delightful. The 14th at Coeur d\'Alene Resort sits on a moveable island anchored in the lake, repositioned each morning between about 100 and 175 yards, and you take a small boat out to putt. You are handed a certificate if you find the green. What surprises people is that the rest of the course is genuinely good — Scott Miller routed it through pine forest above the water, the conditioning is immaculate, and a forecaddie and the boat ride from the resort dock are included. Twenty minutes south, Circling Raven is the serious golf: 620 acres of wetland and pine with no houses, at roughly half the price. The town is a proper lake resort, which makes this one of the easier trips to sell to a partner.',
+    longBlurb:'The floating green is a gimmick and it is also completely good fun. The 14th at Coeur d\'Alene Resort sits on a moveable island anchored in the lake, repositioned each morning between about 100 and 175 yards, and you take a small boat out to putt. You are handed a certificate if you find the green. What surprises people is that the rest of the course is good — Scott Miller routed it through pine forest above the water, the conditioning is immaculate, and a forecaddie and the boat ride from the resort dock are included. Twenty minutes south, Circling Raven is the serious golf: 620 acres of wetland and pine with no houses, at roughly half the price. The town is a proper lake resort, which makes this one of the easier trips to sell to a partner.',
     season:'May – October', seasonMonths:[5,6,7,8,9,10],
     airport:'Spokane (GEG), 45 min',
     gettingThere:'Fly into Spokane and drive 45 minutes east. The resort runs a boat from the dock to the first tee.',
@@ -734,7 +734,7 @@ const DESTINATIONS = [
     usRegion:'Midwest', style:'mountain', palette:['#a4c2ce','#cdd6ac','#6c9048','#dcd6ac'],
     tagline:'Five courses in the Ozarks from Tiger, Coore & Crenshaw, Fazio, Player and Nicklaus.',
     blurb:'Johnny Morris spent Bass Pro money turning a stretch of Missouri hillside into the densest collection of famous architects in America. Payne’s Valley is Tiger Woods’ first public design and finishes with a par 3 in a limestone cave. It should not work, and it entirely does.',
-    longBlurb:'Johnny Morris made a fortune with Bass Pro Shops and spent a chunk of it turning Ozark hillside into the densest concentration of famous architects anywhere in America. Payne\'s Valley is Tiger Woods\' first public design, named for Payne Stewart, and it is wide, playable and far less severe than his reputation would suggest — then it finishes with a nineteenth hole played into a limestone cave with a waterfall behind the green. It should be ridiculous. It is one of the best days out in American golf. The purist\'s pick is Ozarks National, where Coore and Crenshaw worked the ridgelines with their usual restraint. Add a Fazio, a Gary Player short course and a Nicklaus par-3 course over the lake and the property holds five genuinely distinct rounds.',
+    longBlurb:'Johnny Morris made a fortune with Bass Pro Shops and spent a chunk of it turning Ozark hillside into the densest concentration of famous architects anywhere in America. Payne\'s Valley is Tiger Woods\' first public design, named for Payne Stewart, and it is wide, playable and far less severe than his reputation would suggest — then it finishes with a nineteenth hole played into a limestone cave with a waterfall behind the green. It should be ridiculous. It is one of the best days out in American golf. The purist\'s pick is Ozarks National, where Coore and Crenshaw worked the ridgelines with their usual restraint. Add a Fazio, a Gary Player short course and a Nicklaus par-3 course over the lake and the property holds five distinct rounds.',
     season:'April – November', seasonMonths:[4,5,6,7,8,9,10,11],
     airport:'Branson (BKG), 20 min · Springfield (SGF), 1h',
     gettingThere:'Springfield is the practical airport; Branson is closer but has limited service. Everything on site is a shuttle ride apart.',
@@ -760,7 +760,7 @@ const DESTINATIONS = [
     usRegion:'West', style:'mountain', palette:['#8fbdd6','#c7d5b4','#5b7f4e','#d7d0ae'],
     tagline:'Golf at 6,200 feet with the lake below — the ball goes forever and nobody minds the walk.',
     blurb:'Tahoe’s summer is short and glorious. Edgewood runs down to the shoreline on the Nevada side, the Truckee courses sit up among the pines, and the altitude adds ten percent to everything you hit. Pair it with a lake house and it stops being only a golf trip.',
-    longBlurb:'Tahoe\'s golf season is barely five months and that scarcity is part of the appeal. You are playing at over six thousand feet, where the ball carries roughly ten percent further and everyone in the group spends the first round flying greens and refusing to accept why. Edgewood is the headline, on the Nevada shore, finishing with three holes that run along the water and a par 5 that plays straight at the lake. The Truckee courses on the north side are quieter and more wooded — Coyote Moon has no houses on it at all, which in a resort town is close to a miracle. What makes this trip different from the desert ones is that the golf is only half of it: the lake, the hiking and the towns are genuinely worth building days around, so a mixed group does well here.',
+    longBlurb:'Tahoe\'s golf season is barely five months and that scarcity is part of the appeal. You are playing at over six thousand feet, where the ball carries roughly ten percent further and everyone in the group spends the first round flying greens and refusing to accept why. Edgewood is the headline, on the Nevada shore, finishing with three holes that run along the water and a par 5 that plays straight at the lake. The Truckee courses on the north side are quieter and more wooded — Coyote Moon has no houses on it at all, which in a resort town is close to a miracle. What makes this trip different from the desert ones is that the golf is only half of it: the lake, the hiking and the towns are worth building days around, so a mixed group does well here.',
     season:'June – October', seasonMonths:[6,7,8,9,10],
     airport:'Reno-Tahoe (RNO), 45 min',
     gettingThere:'Reno is 45 minutes from the north shore and well connected. Sacramento and the Bay Area are both drivable.',
@@ -788,7 +788,7 @@ const DESTINATIONS = [
     usRegion:'West', style:'desert', palette:['#dcb489','#e8cb9e','#a8703f','#f0dcb4'],
     tagline:'Red rock desert golf on the edge of Zion, at half the price of Scottsdale.',
     blurb:'Southern Utah is what Arizona would be if it were quieter and cheaper. Sand Hollow’s clifftop stretch runs along the edge of a red rock canyon and is as spectacular as anything in the desert, and you can play it for well under a Scottsdale rate. Zion is an hour away.',
-    longBlurb:'Southern Utah is what Arizona would be if it were quieter, emptier and about half the price. The red rock is the whole point — Navajo sandstone in colours that photograph like a filter has been applied, with black lava flows cutting through it. Sand Hollow is the reason to make the trip: holes 10 through 13 run along the rim of a canyon with a drop on one side and nothing but red rock for miles, and it costs a fraction of a comparable desert round in Scottsdale. Entrada plays across genuine lava fields on the back nine. The town is small, the courses are close together, and Zion National Park is an hour up the road if anyone wants a day away from golf. Summer is genuinely unplayable, so aim for spring or autumn.',
+    longBlurb:'Southern Utah is what Arizona would be if it were quieter, emptier and about half the price. The red rock is the whole point — Navajo sandstone in colours that photograph like a filter has been applied, with black lava flows cutting through it. Sand Hollow is the reason to make the trip: holes 10 through 13 run along the rim of a canyon with a drop on one side and nothing but red rock for miles, and it costs a fraction of a comparable desert round in Scottsdale. Entrada plays across genuine lava fields on the back nine. The town is small, the courses are close together, and Zion National Park is an hour up the road if anyone wants a day away from golf. Summer is unplayable, so aim for spring or autumn.',
     season:'March – May, September – November', seasonMonths:[2,3,4,5,9,10,11],
     airport:'St. George (SGU), 15 min · Las Vegas (LAS), 2h drive',
     gettingThere:'St. George has a small airport; most people fly to Las Vegas and drive two hours up the interstate.',
@@ -814,7 +814,7 @@ const DESTINATIONS = [
   }
 ];
 
-/* ---------- curated example trips ---------- */
+/* ---------- example trips ---------- */
 const EXAMPLE_TRIPS = [
   {
     id:'bandon-buddies', title:'The Bandon Buddies Trip', destinationId:'bandon-dunes',
@@ -914,7 +914,7 @@ const EXAMPLE_TRIPS = [
     id:'coachella-winter', title:'Coachella Valley Winter Break', destinationId:'palm-springs',
     nights:3, travelers:4, level:'Winter sun',
     summary:'Four rounds in shirtsleeves in February, ninety minutes from LA and about half the price of Scottsdale.',
-    tips:'Save the Stadium Course for day three — its island green at 17 is much less frightening once you have your desert eye in. Do not book before 9am in December or January; the valley is genuinely cold until the sun clears the mountains.',
+    tips:'Save the Stadium Course for day three — its island green at 17 is much less frightening once you have your desert eye in. Do not book before 9am in December or January; the valley is cold until the sun clears the mountains.',
     days:[
       {label:'Day 1', course:'Desert Willow (Firecliff)', teeTime:'13:20', lodging:'Indian Wells hotel', notes:'Best municipal in the valley and a gentle opener.'},
       {label:'Day 2', course:'PGA West (Nicklaus Tournament)', teeTime:'09:00', lodging:'Indian Wells hotel', notes:'Fairer than the Stadium and a good warm-up for it.'},
@@ -925,7 +925,7 @@ const EXAMPLE_TRIPS = [
   {
     id:'vegas-blowout', title:'The Strip and the Desert', destinationId:'las-vegas',
     nights:3, travelers:4, level:'Blowout',
-    summary:'One genuinely extravagant round, two sensible ones, and dinner on the Strip every night.',
+    summary:'One extravagant round, two sensible ones, and dinner on the Strip every night.',
     tips:'Shadow Creek needs an MGM stay, and the rate includes the limo out there — book it for the night you switch hotels. Paiute is forty minutes into the desert and about a fifth of the price; it is the better golf and everyone says so afterwards.',
     days:[
       {label:'Day 1', course:'Bali Hai', teeTime:'13:30', lodging:'Mid-Strip resort', notes:'Palms and black lava rock, ten minutes from the airport. Easiest arrival day in golf.'},
@@ -1074,7 +1074,7 @@ const EXAMPLE_TRIPS = [
     summary:'Two full courses and the best short course in the country, on sand above the Columbia River.',
     tips:'Stay on site — there is nothing else within half an hour, and the Cabins split well between four. Play QuickSands in the evening with a beer; it is the most fun ninety minutes of the trip and nobody keeps score.',
     days:[
-      {label:'Day 1', course:'Gamble Sands', teeTime:'14:00', lodging:'The Cabins', notes:'Drive over from Seattle, drop bags, afternoon loop. Fairways you genuinely cannot miss.'},
+      {label:'Day 1', course:'Gamble Sands', teeTime:'14:00', lodging:'The Cabins', notes:'Drive over from Seattle, drop bags, afternoon loop. Fairways you cannot miss.'},
       {label:'Day 2', course:'Scarecrow', teeTime:'09:00', lodging:'The Cabins', notes:'The 2024 course — bolder, tougher, more exposed. QuickSands at six.'},
       {label:'Day 3', course:'Gamble Sands', teeTime:'08:20', lodging:'—', notes:'Replay the original with everything you learned, then the long drive back.'}
     ]

@@ -505,3 +505,28 @@ td .rank{font-family:var(--display);font-size:1.25rem;font-weight:700;color:var(
   display:block;margin-top:.45rem;font-style:normal;
   font-size:.76rem;color:var(--muted);letter-spacing:.03em;
 }
+
+/* ---------- rate straight from a card ---------- */
+.card-rate{margin-top:auto;padding-top:.85rem;border-top:1px solid var(--line)}
+.card-rate-head{display:flex;align-items:center;justify-content:space-between;gap:.6rem;flex-wrap:wrap}
+.card-rate-label{font-size:.86rem;color:var(--muted)}
+.card-rate-label b{color:var(--ink);font-size:1rem}
+.quick-rate{
+  display:flex;align-items:center;justify-content:space-between;gap:.5rem;
+  margin-top:.6rem;padding:.5rem .7rem;border-radius:var(--radius-sm);
+  background:rgba(26,86,65,.06);border:1px solid var(--line);
+}
+.quick-rate-ask{font-size:.83rem;font-weight:600;color:var(--ink-soft)}
+.quick-stars{display:inline-flex;gap:1px}
+.qs{
+  background:none;border:none;cursor:pointer;padding:0 .08em;line-height:1;
+  font-size:1.45rem;color:var(--line-strong);transition:.12s;
+}
+.qs.on{color:var(--sand)}
+.quick-stars:hover .qs{color:var(--sand)}
+.quick-stars .qs:hover ~ .qs{color:var(--line-strong)}
+.qs:focus-visible{outline:2px solid var(--green-600);outline-offset:2px;border-radius:3px}
+
+/* briefly highlight the rating form when jumped to */
+.rate-grid.flash .rate-cat{border-color:var(--sand);background:rgba(201,165,92,.08)}
+.rate-grid .rate-cat{transition:border-color .3s, background .3s}

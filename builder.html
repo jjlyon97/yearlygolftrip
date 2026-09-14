@@ -22,7 +22,7 @@
 <meta name="twitter:description" content="Build a golf trip itinerary day by day — courses, tee times and lodging bundled with a running per-person cost — then share it with your group as a single link.">
 <meta name="twitter:image" content="https://yearlygolftrip.netlify.app/assets/og-image.jpg">
 
-<link rel="stylesheet" href="assets/css/style.css?v=30">
+<link rel="stylesheet" href="assets/css/style.css?v=33">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>⛳</text></svg>">
 </head>
 <body>
@@ -33,7 +33,7 @@
     <div class="wrap">
       <p class="eyebrow">Itinerary builder</p>
       <h1 style="max-width:16ch">Build your trip</h1>
-      <p class="lede">Add a day, pick a course and a tee time, attach the lodging. Each course links straight to its own site for live tee times, and everything saves in this browser automatically.</p>
+      <p class="lede">Add a day, pick a course and a tee time, add where you're staying. Each course links to its own site so you can book. Everything saves as you type.</p>
     </div>
   </section>
 
@@ -72,7 +72,7 @@
 
           <div id="share-out" hidden class="panel no-print" style="margin-top:1.5rem">
             <h3 style="margin-bottom:.3em">Share this itinerary</h3>
-            <p class="small muted">The whole trip is packed into this link — anyone who opens it sees your plan and can edit their own copy. Nothing is uploaded.</p>
+            <p class="small muted">The whole trip is inside this link. Anyone who opens it sees your plan and can edit their own copy.</p>
             <div style="display:flex;gap:.5rem;margin-top:.8rem">
               <input id="share-url" readonly style="font-family:var(--mono);font-size:.8rem">
               <button class="btn btn-primary btn-sm" id="copy-url">Copy</button>
@@ -84,8 +84,7 @@
         <aside>
           <div class="panel summary-card" id="summary"></div>
           <p class="small muted no-print" style="margin-top:1rem">
-            Saved automatically in this browser. Clearing site data will erase it — copy the share
-            link if you want a permanent backup.
+            Saved in this browser as you go. Clearing your browser data will erase it, so copy the share link if you want a backup.
           </p>
         </aside>
       </div>
@@ -99,10 +98,10 @@
 
 <footer id="site-footer"></footer>
 
-<script src="assets/js/config.js?v=30"></script>
-<script src="assets/js/data.js?v=30"></script>
-<script src="assets/js/app.js?v=30"></script>
-<script src="assets/js/builder.js?v=30"></script>
+<script src="assets/js/config.js?v=33"></script>
+<script src="assets/js/data.js?v=33"></script>
+<script src="assets/js/app.js?v=33"></script>
+<script src="assets/js/builder.js?v=33"></script>
 <style>
 @media print{
   main > section, .builder-layout > div:first-child, aside { display:none !important; }

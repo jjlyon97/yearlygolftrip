@@ -93,7 +93,10 @@ function renderDetail(id){
             <p class="eyebrow" style="margin-bottom:.4rem">${esc(d.region)}</p>
             <h2 style="margin-bottom:.25em">${esc(d.name)}</h2>
           </div>
-          <button class="icon-btn no-print" id="close-detail" title="Close">✕ Close</button>
+          <div style="display:flex;gap:.5rem;align-items:center;flex:none">
+            <button class="btn btn-primary btn-sm no-print" id="jump-rate">★ Rate it</button>
+            <button class="icon-btn no-print" id="close-detail" title="Close">✕ Close</button>
+          </div>
         </div>
 
         <p class="lede">${esc(d.tagline)}</p>
@@ -251,6 +254,14 @@ function renderDetail(id){
     renderDetail(d.id);
   });
 
+  const jump = $('#jump-rate');
+  if(jump) jump.addEventListener('click', () => {
+    const panel = $('#detail .rate-grid');
+    panel.scrollIntoView({ behavior:'smooth', block:'center' });
+    panel.classList.add('flash');
+    setTimeout(() => panel.classList.remove('flash'), 1200);
+  });
+
   const moreBtn = $('#more-toggle');
   if(moreBtn){
     const panel = $(`#more-${d.id}`);
@@ -323,6 +334,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   applyFilters();
+
+  document.addEventListener('ratings:changed', () => {
+    applyFilters();
+    if(location.hash) renderDetail(location.hash.slice(1));
+  });
 
   const openFromHash = () => renderDetail(location.hash.slice(1));
   window.addEventListener('hashchange', openFromHash);
