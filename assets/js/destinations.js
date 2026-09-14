@@ -220,6 +220,7 @@ function renderDetail(id){
             <button class="btn btn-primary btn-sm" id="save-rating">Save rating</button>
             ${mine ? '<button class="btn btn-ghost btn-sm" id="clear-rating">Remove</button>' : ''}
             <a class="btn btn-ghost btn-sm" href="builder.html?dest=${d.id}">Plan a trip here →</a>
+            <a class="btn btn-ghost btn-sm" href="d/${d.id}.html">Full page ↗</a>
           </div>
         </div>
       </div>

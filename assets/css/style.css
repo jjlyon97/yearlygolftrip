@@ -566,3 +566,15 @@ td .rank{font-family:var(--display);font-size:1.25rem;font-weight:700;color:var(
   font-size:.9rem;color:var(--ink-soft);
 }
 .each-pays b{font-size:1.05rem;color:var(--ink)}
+
+/* ---------- crawlable index of every page ---------- */
+.link-index{
+  margin-top:2.5rem;padding-top:1.6rem;border-top:1px solid var(--line);
+}
+.link-index h2{
+  font-family:var(--sans);font-size:.74rem;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--muted);margin:0 0 .7rem;
+}
+.link-index p{font-size:.88rem;line-height:2;color:var(--muted);margin:0}
+.link-index a{color:var(--ink-soft);text-decoration:none}
+.link-index a:hover{color:var(--green-700);text-decoration:underline}

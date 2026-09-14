@@ -4,9 +4,9 @@
 #
 #   ./deploy.sh "what changed"
 #
-# Bumps the ?v= cache-busting version on every page, runs a quick
-# pre-flight check, commits and pushes. Netlify republishes on its
-# own about 30 seconds later.
+# Regenerates the per-destination and per-trip pages from data.js,
+# bumps the ?v= cache-busting version, runs a quick pre-flight check,
+# commits and pushes. Netlify republishes about 30 seconds later.
 #
 # The version bump is the whole point of this script: skip it and
 # returning visitors keep running the JavaScript they cached last
@@ -58,7 +58,18 @@ if [[ $missing -eq 1 ]]; then
 fi
 
 # ---------------------------------------------------------------
-# 3. bump, commit, push
+# 3. regenerate the per-destination and per-trip pages
+# ---------------------------------------------------------------
+# These are built from data.js. Regenerating on every deploy is what
+# stops them drifting from the data they describe.
+echo "Rebuilding destination and trip pages"
+python3 tools/build-pages.py || {
+  echo "Page generation failed — nothing deployed." >&2
+  exit 1
+}
+
+# ---------------------------------------------------------------
+# 4. bump, commit, push
 # ---------------------------------------------------------------
 echo "Bumping assets v$cur -> v$next"
 sed -i '' "s/?v=$cur\"/?v=$next\"/g" ./*.html

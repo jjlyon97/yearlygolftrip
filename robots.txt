@@ -5,5 +5,6 @@ Allow: /
 Disallow: /tests/
 Disallow: /deploy.sh
 Disallow: /supabase-setup.sql
+Disallow: /tools/
 
 Sitemap: https://yearlygolftrip.netlify.app/sitemap.xml
