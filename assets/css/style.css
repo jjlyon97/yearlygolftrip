@@ -530,3 +530,6 @@ td .rank{font-family:var(--display);font-size:1.25rem;font-weight:700;color:var(
 /* briefly highlight the rating form when jumped to */
 .rate-grid.flash .rate-cat{border-color:var(--sand);background:rgba(201,165,92,.08)}
 .rate-grid .rate-cat{transition:border-color .3s, background .3s}
+
+/* rating entry point on preview cards */
+.rate-link{margin-top:.6rem;width:100%}

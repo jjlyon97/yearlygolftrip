@@ -46,6 +46,17 @@ function applyFilters(){
        </div>`;
 }
 
+/** Scroll the rating form into view under the sticky header and flash it. */
+function goToRatingForm(){
+  const grid  = $('#detail .rate-grid');
+  if(!grid) return;
+  const panel = grid.closest('.panel-tight') || grid;
+  const y = panel.getBoundingClientRect().top + window.scrollY - 84;
+  window.scrollTo({ top:y, behavior:'smooth' });
+  grid.classList.add('flash');
+  setTimeout(() => grid.classList.remove('flash'), 1600);
+}
+
 /* ---------- detail view ---------- */
 function renderDetail(id){
   const d = DEST_BY_ID[id];
@@ -255,12 +266,7 @@ function renderDetail(id){
   });
 
   const jump = $('#jump-rate');
-  if(jump) jump.addEventListener('click', () => {
-    const panel = $('#detail .rate-grid');
-    panel.scrollIntoView({ behavior:'smooth', block:'center' });
-    panel.classList.add('flash');
-    setTimeout(() => panel.classList.remove('flash'), 1200);
-  });
+  if(jump) jump.addEventListener('click', goToRatingForm);
 
   const moreBtn = $('#more-toggle');
   if(moreBtn){
@@ -343,6 +349,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   const openFromHash = () => renderDetail(location.hash.slice(1));
   window.addEventListener('hashchange', openFromHash);
   if(location.hash) openFromHash();
+
+  // arriving from a "Rate it" button: open the form rather than the write-up
+  const wantsRating = new URLSearchParams(location.search).get('rate');
+  if(wantsRating && DEST_BY_ID[wantsRating]){
+    renderDetail(wantsRating);
+    // renderDetail starts its own scroll to the top of the panel; let that
+    // settle before overriding it, or the two smooth scrolls fight
+    setTimeout(goToRatingForm, 260);
+  }
 
   // in-page card links should re-render even when the hash is unchanged
   $('#dest-grid').addEventListener('click', e => {

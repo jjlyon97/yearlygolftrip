@@ -365,7 +365,12 @@ function terrainStyle(d){
   return `--c1:${c1};--c2:${c2};--c3:${c3};--c4:${c4}`;
 }
 
-function destinationCard(d, rank){
+/**
+ * opts.quickRate — inline stars (browsing pages) vs a button that takes
+ * you to the rating form (preview pages like the home page).
+ */
+function destinationCard(d, rank, opts = {}){
+  const quickRate = opts.quickRate !== false;
   const s = Ratings.score(d);
   const best = bestCategory(s);
   const trip = TRIP_BY_DEST[d.id];
@@ -392,6 +397,7 @@ function destinationCard(d, rank){
               : 'No ratings yet'}</span>
             ${best ? `<span class="pill">Best for ${esc(best.short.toLowerCase())}</span>` : ''}
           </div>
+          ${quickRate ? `
           <div class="quick-rate">
             <span class="quick-rate-ask">${s.mine ? 'You rated it' : 'Been here? Rate it'}</span>
             <span class="quick-stars" data-dest="${d.id}">
@@ -400,7 +406,10 @@ function destinationCard(d, rank){
                         data-n="${n}" title="${n} out of 5"
                         aria-label="Rate ${esc(d.name)} ${n} out of 5">★</button>`).join('')}
             </span>
-          </div>
+          </div>` : `
+          <a class="btn btn-ghost btn-sm rate-link" href="destinations.html?rate=${d.id}#${d.id}">
+            ${s.mine ? 'Change your rating' : 'Rate it'}
+          </a>`}
         </div>
         <div class="card-actions">
           ${trip ? `<a class="btn btn-ghost btn-sm" href="trips.html#${trip.id}">The itinerary</a>` : ''}
