@@ -68,6 +68,7 @@ def shell(*, title, desc, canonical, body, jsonld, depth=1):
       <a href="{up}top-rated.html">Top Rated</a>
       <a href="{up}trips.html">Example Trips</a>
       <a href="{up}builder.html">Build Your Trip</a>
+      <a href="{up}passport.html">Passport</a>
     </nav>
   </div>
 </header>
@@ -234,7 +235,7 @@ def main():
     today = datetime.date.today().isoformat()
     urls = [(f'{SITE}/', '1.0'), (f'{SITE}/destinations.html', '0.9'),
             (f'{SITE}/trips.html', '0.9'), (f'{SITE}/builder.html', '0.8'),
-            (f'{SITE}/top-rated.html', '0.7')]
+            (f'{SITE}/top-rated.html', '0.7'), (f'{SITE}/passport.html', '0.6')]
     urls += [(f'{SITE}/{OUT_D}/{d["id"]}.html', '0.8') for d in dests]
     urls += [(f'{SITE}/{OUT_T}/{t["id"]}.html', '0.7') for t in trips]
     with open('sitemap.xml', 'w', encoding='utf-8') as f:

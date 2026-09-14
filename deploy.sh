@@ -43,7 +43,10 @@ next=$(( cur + 1 ))
 # ---------------------------------------------------------------
 missing=0
 while IFS= read -r ref; do
-  [[ "$ref" =~ ^(https?:|data:|mailto:|#|\$\{) ]] && continue
+  # skip external links, and anything with a JS template placeholder in it —
+  # inline scripts build hrefs like d/${d.id}.html, which is not a real path
+  [[ "$ref" =~ ^(https?:|data:|mailto:|#) ]] && continue
+  [[ "$ref" == *'${'* ]] && continue
   file="${ref%%\?*}"; file="${file%%#*}"
   [[ -z "$file" ]] && continue
   if [[ ! -e "$file" ]]; then

@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Your Golf Passport — Yearly Golf Trip</title>
+<meta name="description" content="Tick off the courses you have played, see how much of the list you have covered, and collect the badges that go with it.">
+<link rel="canonical" href="https://yearlygolftrip.netlify.app/passport.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Yearly Golf Trip">
+<meta property="og:title" content="Your Golf Passport — Yearly Golf Trip">
+<meta property="og:description" content="Tick off the courses you have played and see how much of the list you have covered.">
+<meta property="og:url" content="https://yearlygolftrip.netlify.app/passport.html">
+<meta property="og:image" content="https://yearlygolftrip.netlify.app/assets/og-image.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="assets/css/style.css?v=54">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>⛳</text></svg>">
+</head>
+<body>
+<header id="site-header"></header>
+
+<main>
+  <section style="padding-bottom:1.5rem">
+    <div class="wrap">
+      <p class="eyebrow">Your passport</p>
+      <h1 style="max-width:15ch">Courses you have played</h1>
+      <p class="lede">Tick a course off on any destination page and it lands here. Nothing to sign up for — it saves to your browser, and to your passport on the server if shared ratings are switched on.</p>
+    </div>
+  </section>
+
+  <section style="padding-top:0">
+    <div class="wrap">
+      <div class="passport-head panel" id="progress"></div>
+      <p class="small" id="sync-mode" style="margin:.9rem 0 0"></p>
+
+      <div class="section-head" style="margin-top:2.5rem">
+        <div>
+          <p class="eyebrow">Badges</p>
+          <h2 style="font-size:1.6rem;margin:0">What you have earned</h2>
+        </div>
+      </div>
+      <div id="badges"></div>
+
+      <div class="section-head" style="margin-top:2.5rem">
+        <div>
+          <p class="eyebrow">The list</p>
+          <h2 style="font-size:1.6rem;margin:0">Where you have played</h2>
+        </div>
+        <div class="chip-row">
+          <button class="chip active" data-view="played">Played</button>
+          <button class="chip" data-view="all">Everywhere</button>
+        </div>
+      </div>
+      <div id="log"></div>
+
+      <div class="panel" style="margin-top:2.5rem">
+        <h2 style="font-size:1.15rem;margin-bottom:.3em">Don't lose it</h2>
+        <p class="small muted">There are no accounts here, so your passport lives in this browser. Copy this link and mail it to yourself — opening it on any device restores everything.</p>
+        <div style="display:flex;gap:.5rem;margin-top:.8rem;flex-wrap:wrap">
+          <input id="restore-url" readonly style="font-family:var(--mono);font-size:.78rem;flex:1;min-width:240px">
+          <button class="btn btn-primary btn-sm" id="copy-restore">Copy</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer id="site-footer"></footer>
+
+<script src="assets/js/config.js?v=54"></script>
+<script src="assets/js/data.js?v=54"></script>
+<script src="assets/js/app.js?v=54"></script>
+<script src="assets/js/passport.js?v=54"></script>
+<script>
+let view = 'played';
+
+function renderProgress(){
+  const t = Passport.totals();
+  const pctC = t.allCourses ? (t.courses / t.allCourses * 100) : 0;
+  const pctD = t.allDests  ? (t.dests  / t.allDests  * 100) : 0;
+  $('#progress').innerHTML = `
+    <div class="progress-grid">
+      <div>
+        <span class="pg-num">${t.courses}<span class="pg-of">/${t.allCourses}</span></span>
+        <span class="pg-label">Courses played</span>
+        <span class="sb-track"><span class="sb-fill" style="width:${pctC.toFixed(1)}%"></span></span>
+      </div>
+      <div>
+        <span class="pg-num">${t.dests}<span class="pg-of">/${t.allDests}</span></span>
+        <span class="pg-label">Destinations visited</span>
+        <span class="sb-track"><span class="sb-fill" style="width:${pctD.toFixed(1)}%"></span></span>
+      </div>
+    </div>
+    ${t.courses === 0 ? `
+      <p class="small muted" style="margin:1.1rem 0 0">
+        Nothing ticked off yet. Open any destination and check the courses you have played —
+        <a href="destinations.html">start here</a>.
+      </p>` : ''}`;
+}
+
+function renderBadges(){
+  const { earned, working } = achievements();
+  $('#badges').innerHTML = `
+    ${earned.length ? `<div class="badge-grid">${earned.map(a => `
+      <div class="badge earned">
+        <span class="badge-tick">✓</span>
+        <b>${esc(a.name)}</b>
+        <span class="small muted">${esc(a.desc)}</span>
+      </div>`).join('')}</div>` : `
+      <div class="empty-state" style="padding:2rem 1rem">
+        <h3 style="margin-bottom:.3em">No badges yet</h3>
+        <p class="small" style="margin:0">They come from courses you tick off — nothing is handed out.</p>
+      </div>`}
+
+    ${working.length ? `
+      <p class="eyebrow" style="margin:1.8rem 0 .8rem">Closest to earning</p>
+      <div class="badge-grid">${working.map(a => `
+        <div class="badge">
+          <span class="badge-progress">${esc(a.progress)}</span>
+          <b>${esc(a.name)}</b>
+          <span class="small muted">${esc(a.desc)}</span>
+        </div>`).join('')}</div>` : ''}`;
+}
+
+function renderLog(){
+  const list = view === 'played' ? Passport.destinations() : DESTINATIONS;
+  $('#log').innerHTML = list.length ? list.map(d => {
+    const done = d.courses.filter(c => Passport.has(d.id, c.name));
+    return `
+      <div class="log-row panel panel-tight">
+        <div class="log-head">
+          <div>
+            <h3 style="margin:0 0 .1em;font-size:1.05rem">
+              <a href="d/${d.id}.html" style="text-decoration:none">${esc(d.name)}</a></h3>
+            <span class="small muted">${esc(d.region)}</span>
+          </div>
+          <span class="pill${done.length === d.courses.length ? ' pill-sand' : ''}">
+            ${done.length} of ${d.courses.length}</span>
+        </div>
+        ${done.length ? `<p class="small" style="margin:.6rem 0 0">${
+          done.map(c => esc(c.name)).join(' · ')}</p>` : `
+          <p class="small muted" style="margin:.6rem 0 0">
+            <a href="destinations.html#${d.id}">Tick off what you have played →</a></p>`}
+      </div>`;
+  }).join('') : `
+    <div class="empty-state">
+      <h3>Nothing here yet</h3>
+      <p>Open a destination and check off the courses you have played.</p>
+      <a class="btn btn-primary btn-sm" href="destinations.html">Browse destinations</a>
+    </div>`;
+}
+
+function renderSync(){
+  const el = $('#sync-mode');
+  if(Passport.online){
+    el.innerHTML = '<span class="pill">Saved to your account</span> ' +
+      '<span class="muted">Your passport follows you to any device that opens your restore link.</span>';
+  } else if(Passport.needsTable){
+    el.innerHTML = '<span class="pill pill-warn">This browser only</span> ' +
+      '<span class="muted">The passport table has not been created on the server yet — run supabase-passport.sql.</span>';
+  } else {
+    el.innerHTML = '<span class="pill pill-sand">This browser only</span> ' +
+      '<span class="muted">Saved locally. Copy the restore link below so you do not lose it.</span>';
+  }
+}
+
+function renderAll(){ renderProgress(); renderBadges(); renderLog(); renderSync();
+  $('#restore-url').value = `${location.origin}${location.pathname}#p=${Passport.code()}`;
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+  await Passport.load();
+
+  if(location.hash.startsWith('#p=')){
+    try {
+      const n = await Passport.restore(location.hash.slice(3));
+      history.replaceState(null, '', location.pathname);
+      toast(`Passport restored — ${n} courses`);
+    } catch { toast('That passport link could not be read'); }
+  }
+
+  $$('.chip[data-view]').forEach(chip => chip.addEventListener('click', () => {
+    $$('.chip[data-view]').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    view = chip.dataset.view;
+    renderLog();
+  }));
+
+  $('#copy-restore').addEventListener('click', () => {
+    $('#restore-url').select();
+    navigator.clipboard?.writeText($('#restore-url').value);
+    toast('Copied — mail it to yourself');
+  });
+
+  renderAll();
+  document.addEventListener('passport:changed', renderAll);
+});
+</script>
+</body>
+</html>

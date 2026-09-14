@@ -22,6 +22,7 @@ python3 -m http.server 8791
 | `destinations.html` | All 26 destinations, filterable; detail drawer with courses, lodging and the rating widget |
 | `top-rated.html` | Leaderboard — rank by community score, editor score, or value; plus your own reviews |
 | `trips.html` | Twenty-six example itineraries — one per destination; card grid, region filter, detail drawer, each loadable into the builder |
+| `passport.html` | Your passport — courses ticked off, progress, badges, restore link |
 | `builder.html` | The itinerary builder — days, courses, tee times, lodging, share link |
 
 ## How the data works
@@ -176,7 +177,53 @@ every consumer goes through `Ratings.score()`.
 Unrated things sort last rather than as zero, minimum-score filters exclude
 them, and `bestCategory()` returns null instead of guessing.
 
-### Sharing### Sharing
+### The passport
+
+`assets/js/passport.js` tracks which courses someone has played. Same shape as
+ratings: localStorage always, Supabase as well when configured, keyed by the
+same `rater_id`. A passport is personal rather than shared, so nothing is
+aggregated — the server copy exists so it survives a cleared browser.
+
+A course is keyed `"<destinationId>::<course name>"`. **Having visited a
+destination is derived** from having played at least one of its courses, so
+there is only ever one thing to click.
+
+Badges are computed in `achievements()` from what has actually been ticked —
+course-count milestones, destination counts, sweeping a whole US region,
+completing every public course at one destination, and five courses by a given
+architect. Nothing is awarded arbitrarily and nothing is stored; change the
+rules and everyone's badges recalculate.
+
+`supabase-passport.sql` creates the table. Until it is run the page says so and
+falls back to this-browser-only rather than failing quietly.
+
+Because there are no accounts, the passport page offers a restore link with the
+whole passport encoded in it — the same trick the builder uses for sharing.
+
+### Sharing### The passport
+
+`assets/js/passport.js` tracks which courses someone has played. Same shape as
+ratings: localStorage always, Supabase as well when configured, keyed by the
+same `rater_id`. A passport is personal rather than shared, so nothing is
+aggregated — the server copy exists so it survives a cleared browser.
+
+A course is keyed `"<destinationId>::<course name>"`. **Having visited a
+destination is derived** from having played at least one of its courses, so
+there is only ever one thing to click.
+
+Badges are computed in `achievements()` from what has actually been ticked —
+course-count milestones, destination counts, sweeping a whole US region,
+completing every public course at one destination, and five courses by a given
+architect. Nothing is awarded arbitrarily and nothing is stored; change the
+rules and everyone's badges recalculate.
+
+`supabase-passport.sql` creates the table. Until it is run the page says so and
+falls back to this-browser-only rather than failing quietly.
+
+Because there are no accounts, the passport page offers a restore link with the
+whole passport encoded in it — the same trick the builder uses for sharing.
+
+### Sharing
 The builder packs the entire itinerary into the URL hash as base64url JSON
 (`builder.html#t=…`). No account, no server, nothing uploaded. A shared link is
 fully editable by whoever opens it — they get their own copy. All decoded values

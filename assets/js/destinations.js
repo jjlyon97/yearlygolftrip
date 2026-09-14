@@ -74,8 +74,15 @@ function renderDetail(id){
       : c.url
         ? `<a class="btn btn-ghost btn-sm" href="${esc(c.url)}" target="_blank" rel="noopener noreferrer">Tee times&nbsp;↗</a>`
         : '<span class="small muted">Book through the resort</span>';
+    const ticked = typeof Passport !== 'undefined' && Passport.has(d.id, c.name);
     return `
-    <tr>
+    <tr class="${ticked ? 'played' : ''}">
+      <td>
+        <label class="played-check" title="Tick if you have played it">
+          <input type="checkbox" data-played="${esc(c.name)}" ${ticked ? 'checked' : ''}>
+          <span></span>
+        </label>
+      </td>
       <td><b>${esc(c.name)}</b><div class="small muted">${esc(c.note)}</div></td>
       <td>${esc(c.designer)}</td>
       <td>Par ${c.par}</td>
@@ -161,9 +168,10 @@ function renderDetail(id){
         </div>
 
         <h3>Courses</h3>
+        <p class="small muted" id="dest-played" style="margin:-.4em 0 .8rem"></p>
         <div class="table-wrap" style="margin-bottom:1.8rem">
           <table>
-            <thead><tr><th>Course</th><th>Architect</th><th></th><th>Cost</th><th>Book</th></tr></thead>
+            <thead><tr><th title="Played">✓</th><th>Course</th><th>Architect</th><th></th><th>Cost</th><th>Book</th></tr></thead>
             <tbody>${courseRows}</tbody>
           </table>
         </div>
@@ -262,6 +270,26 @@ function renderDetail(id){
     renderDetail(d.id);
   });
 
+  const playedNote = () => {
+    const n = Passport.playedIn(d.id);
+    const el = $('#dest-played');
+    if(el) el.innerHTML = n
+      ? `You have played <b>${n} of ${d.courses.length}</b> here. <a href="passport.html">Your passport →</a>`
+      : `Tick off the ones you have played — they go straight to <a href="passport.html">your passport</a>.`;
+  };
+  playedNote();
+
+  $$('#detail input[data-played]').forEach(box => {
+    box.addEventListener('change', async () => {
+      const name = box.dataset.played;
+      box.closest('tr').classList.toggle('played', box.checked);
+      await Passport.toggle(d.id, name);
+      playedNote();
+      toast(box.checked ? `${name} ticked off` : `${name} removed`);
+      document.dispatchEvent(new CustomEvent('passport:changed'));
+    });
+  });
+
   const jump = $('#jump-rate');
   if(jump) jump.addEventListener('click', goToRatingForm);
 
@@ -287,7 +315,7 @@ function renderDetail(id){
 
 /* ---------- boot ---------- */
 document.addEventListener('DOMContentLoaded', async () => {
-  await Ratings.load();
+  await Promise.all([Ratings.load(), Passport.load()]);
 
   // region options
   $('#f-region').innerHTML = '<option value="">Anywhere in the US</option>' +

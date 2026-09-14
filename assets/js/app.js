@@ -66,7 +66,8 @@ const NAV_LINKS = [
   {href:'destinations.html', label:'Destinations'},
   {href:'top-rated.html',    label:'Top Rated'},
   {href:'trips.html',        label:'Example Trips'},
-  {href:'builder.html',      label:'Build Your Trip'}
+  {href:'builder.html',      label:'Build Your Trip'},
+  {href:'passport.html',     label:'Passport'}
 ];
 
 function renderChrome(){
@@ -107,6 +108,7 @@ function renderChrome(){
               <li><a href="top-rated.html">Top rated</a></li>
               <li><a href="trips.html">Example trips</a></li>
               <li><a href="builder.html">Itinerary builder</a></li>
+              <li><a href="passport.html">Your passport</a></li>
             </ul>
           </div>
           <div>
