@@ -533,3 +533,8 @@ td .rank{font-family:var(--display);font-size:1.25rem;font-weight:700;color:var(
 
 /* rating entry point on preview cards */
 .rate-link{margin-top:.6rem;width:100%}
+
+/* tighter rating rows now that the descriptions are gone */
+.rate-cat{padding:.5rem .8rem}
+.rate-cat-label{min-width:120px}
+.rate-cat-label b{font-size:.98rem}

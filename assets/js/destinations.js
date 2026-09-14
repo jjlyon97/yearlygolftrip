@@ -198,10 +198,7 @@ function renderDetail(id){
           <div class="rate-grid">
             ${RATING_CATEGORIES.map(c => `
               <div class="rate-cat" data-cat="${c.key}">
-                <div class="rate-cat-label">
-                  <b>${esc(c.label)}</b>
-                  <span class="small muted">${esc(c.hint)}</span>
-                </div>
+                <div class="rate-cat-label"><b>${esc(c.label)}</b></div>
                 <div class="rate-cat-stars">
                   <div class="rate-widget" role="radiogroup" aria-label="${esc(c.label)}">
                     ${[1,2,3,4,5].map(n => `

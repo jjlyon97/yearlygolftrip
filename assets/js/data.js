@@ -23,14 +23,14 @@
    the rest — "was this a good trip?" is its own judgement, not the mean of
    eight sub-scores. The others explain it. */
 const RATING_CATEGORIES = [
-  {key:'overall',   label:'Overall trip',          short:'Overall',   hint:'All in — would you tell a friend to go?'},
-  {key:'fun',       label:'Fun & enjoyment',       short:'Fun',       hint:'How much fun was the golf, regardless of how hard or famous it is?'},
-  {key:'quality',   label:'Course quality',        short:'Quality',   hint:'The design — the holes you actually remember.'},
-  {key:'depth',     label:'Course depth',          short:'Depth',     hint:'Enough good golf to fill the trip, or one course and filler?'},
-  {key:'transport', label:'Getting there & around',short:'Transport', hint:'Flights, drives, and how close the courses are to each other.'},
-  {key:'lodging',   label:'Lodging & amenities',   short:'Lodging',   hint:'Rooms, food, clubhouse, practice ground, caddies.'},
-  {key:'value',     label:'Value',                 short:'Value',     hint:'Worth what you paid, whatever the price bracket?'},
-  {key:'offcourse', label:'Off-course',            short:'Off-course',hint:'The town, the food, and whether non-golfers had a good time.'}
+  {key:'overall',   label:'Overall'},
+  {key:'fun',       label:'Fun'},
+  {key:'quality',   label:'Quality'},
+  {key:'depth',     label:'Depth'},
+  {key:'transport', label:'Transport'},
+  {key:'lodging',   label:'Lodging'},
+  {key:'value',     label:'Value'},
+  {key:'offcourse', label:'Off-course'}
 ];
 const CATEGORY_KEYS  = RATING_CATEGORIES.map(c => c.key);
 const CATEGORY_BY_KEY= Object.fromEntries(RATING_CATEGORIES.map(c => [c.key, c]));

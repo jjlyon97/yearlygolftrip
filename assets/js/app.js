@@ -395,7 +395,7 @@ function destinationCard(d, rank, opts = {}){
             <span class="card-rate-label">${s.rated
               ? `<b>${s.value.toFixed(1)}</b> from ${s.votes} ${s.votes === 1 ? 'rating' : 'ratings'}`
               : 'No ratings yet'}</span>
-            ${best ? `<span class="pill">Best for ${esc(best.short.toLowerCase())}</span>` : ''}
+            ${best ? `<span class="pill">Best for ${esc(best.label.toLowerCase())}</span>` : ''}
           </div>
           ${quickRate ? `
           <div class="quick-rate">
