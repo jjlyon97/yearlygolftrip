@@ -22,7 +22,7 @@
 <meta name="twitter:description" content="The golf travel leaderboard — destinations ranked by community rating, including the ones you have rated yourself.">
 <meta name="twitter:image" content="https://yearlygolftrip.netlify.app/assets/og-image.jpg">
 
-<link rel="stylesheet" href="assets/css/style.css?v=38">
+<link rel="stylesheet" href="assets/css/style.css?v=40">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>⛳</text></svg>">
 </head>
 <body>
@@ -81,25 +81,30 @@
 
 <footer id="site-footer"></footer>
 
-<script src="assets/js/config.js?v=38"></script>
-<script src="assets/js/data.js?v=38"></script>
-<script src="assets/js/app.js?v=38"></script>
+<script src="assets/js/config.js?v=40"></script>
+<script src="assets/js/data.js?v=40"></script>
+<script src="assets/js/app.js?v=40"></script>
 <script>
 let rankKey = 'overall';
+
+function metricOf(r){
+  /* Overall uses the headline score, which falls back to the mean of the
+     categories that were rated. Any other column needs that actual category. */
+  return rankKey === 'overall' ? r.s.value : r.s.categories[rankKey];
+}
 
 function ranked(){
   return DESTINATIONS
     .map(d => ({ d, s:Ratings.score(d) }))
-    .filter(r => r.s.categories[rankKey] != null)
-    .sort((a, b) => b.s.categories[rankKey] - a.s.categories[rankKey]
-                 || b.d.editorScore - a.d.editorScore);
+    .filter(r => metricOf(r) != null)
+    .sort((a, b) => metricOf(b) - metricOf(a) || b.d.editorScore - a.d.editorScore);
 }
 
 function unrated(){
   return DESTINATIONS.filter(d => !Ratings.score(d).rated);
 }
 
-function metricOf(r){ return r.s.categories[rankKey]; }
+
 
 /** Compact inline bars so you can see WHY something ranks where it does. */
 function miniBars(r){

@@ -2,11 +2,23 @@
 <script>
 /* pretend Supabase is configured, and stub the network */
 window.SUPABASE_CONFIG = { url:'https://fake.supabase.co', anonKey:'eyJfake' };
+
+/* The assertions below need a clean slate, but this page runs on the same
+   origin as the real site, so wiping localStorage would destroy genuine
+   ratings. Snapshot it, clear it, and put it back when the test finishes. */
+window.__snapshot = JSON.stringify(Object.entries(localStorage));
+localStorage.clear();
+window.__restore = () => {
+  localStorage.clear();
+  JSON.parse(window.__snapshot).forEach(([k, v]) => localStorage.setItem(k, v));
+};
 window.__posts = [];
 window.__rows = [
   {destination_id:'bandon-dunes', rater_id:'aaa', scores:{overall:5, fun:5, quality:5}, review:'Best trip ever', updated_at:'2026-09-01'},
   {destination_id:'bandon-dunes', rater_id:'bbb', scores:{overall:4, fun:4, quality:5}, review:'',              updated_at:'2026-09-02'},
-  {destination_id:'maui',         rater_id:'ccc', scores:{overall:3, lodging:5},        review:'Great with kids',updated_at:'2026-09-03'}
+  {destination_id:'maui',         rater_id:'ccc', scores:{overall:3, lodging:5},        review:'Great with kids',updated_at:'2026-09-03'},
+  /* rated, but nobody scored Overall — this must still count as rated */
+  {destination_id:'kohler',       rater_id:'ddd', scores:{fun:5, value:4},              review:'',              updated_at:'2026-09-04'}
 ];
 window.fetch = async (url, opts = {}) => {
   if((opts.method || 'GET') === 'GET') return { ok:true, status:200, json: async () => window.__rows };
@@ -19,6 +31,7 @@ window.fetch = async (url, opts = {}) => {
 <script>
 (async () => {
   const L = [], ok = (c, m) => L.push((c ? 'PASS  ' : 'FAIL  ') + m);
+  try {
   L.push('shared mode detected: ' + Ratings.shared);
   await Ratings.load();
   ok(Ratings.online === true, 'went online after a successful fetch');
@@ -35,6 +48,14 @@ window.fetch = async (url, opts = {}) => {
 
   const m = Ratings.score(DEST_BY_ID['maui']);
   ok(m.categories.lodging === 5 && m.categories.fun === null, 'partial rows average per category');
+
+  // a destination rated on other categories but not Overall
+  const k = Ratings.score(DEST_BY_ID['kohler']);
+  ok(k.rated === true,                  'counts as rated without an Overall score');
+  ok(k.categories.overall === null,     'Overall itself stays null');
+  ok(k.value === 4.5,                   'headline falls back to the mean of what was rated (got ' + k.value + ')');
+  ok(Ratings.by(DEST_BY_ID['kohler'], 'overall') === 4.5, 'by(overall) uses that fallback, so it ranks');
+  ok(Ratings.by(DEST_BY_ID['kohler'], 'lodging') === null, 'by(lodging) stays null — cannot rank on an unrated category');
 
   const none = Ratings.score(DEST_BY_ID['st-george']);
   ok(none.rated === false && none.value === null, 'a destination with no rows is unrated');
@@ -71,9 +92,16 @@ window.fetch = async (url, opts = {}) => {
   ok(Ratings.online === false, 'a dead server leaves online=false instead of throwing');
   ok(Ratings.score(DEST_BY_ID['bandon-dunes']) !== undefined, 'score() still returns after a failed load');
 
+  } catch (err) {
+    L.push('FAIL  threw: ' + err.message);
+  } finally {
+    window.__restore();          // never leave the real ratings wiped
+  }
+
   const fails = L.filter(l => l.startsWith('FAIL')).length;
   L.push('');
   L.push(fails ? fails + ' FAILURES' : 'all assertions passed');
+  L.push('(your real ratings were snapshotted and restored)');
   document.getElementById('o').textContent = L.join('\n');
 })();
 </script></body>

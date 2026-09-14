@@ -262,7 +262,14 @@ const Ratings = {
     };
   },
 
-  by(dest, key){ return this.score(dest).categories[key] ?? null; },
+  by(dest, key){
+    const s = this.score(dest);
+    /* 'Overall' falls back to the mean of whatever WAS rated. Without this a
+       place scored only on, say, Fun and Value counts as unrated everywhere,
+       because the default view ranks by Overall and finds nothing there. */
+    if(key === 'overall') return s.value;
+    return s.categories[key] ?? null;
+  },
   count(){ return Object.keys(this._mine).length; },
 
   /* ---------- writes ---------- */
